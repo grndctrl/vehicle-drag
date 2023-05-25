@@ -11,12 +11,7 @@ function App() {
         </Physics>
       </Canvas>
       <div className="absolute inset-0 flex flex-col justify-between p-20 pointer-events-none">
-        <div
-          className="text-5xl font-black leading-10 tracking-tight"
-          style={{
-            mixBlendMode: 'difference',
-          }}
-        >
+        <div className="text-5xl font-black leading-10 tracking-tight">
           Vehicle
           <br /> Controller
         </div>
