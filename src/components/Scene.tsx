@@ -1,9 +1,8 @@
-import { Box, OrbitControls, Plane } from '@react-three/drei';
-import { RigidBody } from '../lib/react-three-rapier';
-import Vehicle from './Vehicle';
-import { Vector2, Vector3 } from 'three';
+import { Box, OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
+import { RigidBody } from '../lib/react-three-rapier';
+import Vehicle from './Vehicle';
 
 function Ground() {
   return (
