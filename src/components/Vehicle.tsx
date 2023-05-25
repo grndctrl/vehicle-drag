@@ -3,6 +3,7 @@ import {
   CuboidCollider,
   RapierRigidBody,
   RigidBody,
+  useAfterPhysicsStep,
   useBeforePhysicsStep,
   useRapier
 } from '../lib/react-three-rapier';
@@ -25,7 +26,7 @@ function Wheel({ position, radius }: { position: Vector3; radius: number }) {
     <Cylinder
       ref={wheelRef}
       args={[radius, radius, 0.1, 64]}
-      rotation={[0, 0, Math.PI * 0.5]}
+      rotation={[Math.PI * 0.5, 0, 0]}
     >
       <meshNormalMaterial />
     </Cylinder>
@@ -38,17 +39,17 @@ function Vehicle() {
   const vehicleRef = useRef<DynamicRayCastVehicleController>();
 
   const [wheelpositions, setWheelPositions] = useState({
-    frontLeft: new Vector3(-1, 0, -2),
-    frontRight: new Vector3(1, 0, -2),
-    backLeft: new Vector3(-1, 0, 2),
-    backRight: new Vector3(1, 0, 2)
+    frontLeft: new Vector3(-2, 0, -1),
+    frontRight: new Vector3(-2, 0, 1),
+    backLeft: new Vector3(2, 0, -1),
+    backRight: new Vector3(2, 0, 1)
   });
 
   const radius = 0.75;
   const suspensionRestLength = 0.5;
-  const suspensionStiffness = 0.25;
-  const maxSuspensionTravel = 0.5;
-  const suspensionDamping = 0.5;
+  // const suspensionStiffness = 5;
+  // const maxSuspensionTravel = 0.5;
+  // const suspensionDamping = 0.8;
 
   useEffect(() => {
     const { current: chassis } = chassisRef;
@@ -59,59 +60,61 @@ function Vehicle() {
     vehicleRef.current.addWheel(
       wheelpositions.frontLeft,
       new Vector3(0, -1, 0),
-      new Vector3(1, 0, 0),
+      new Vector3(0, 0, 1),
       suspensionRestLength,
       radius
     );
     vehicleRef.current.addWheel(
       wheelpositions.frontRight,
       new Vector3(0, -1, 0),
-      new Vector3(1, 0, 0),
+      new Vector3(0, 0, 1),
       suspensionRestLength,
       radius
     );
     vehicleRef.current.addWheel(
       wheelpositions.backLeft,
       new Vector3(0, -1, 0),
-      new Vector3(1, 0, 0),
+      new Vector3(0, 0, 1),
       suspensionRestLength,
       radius
     );
     vehicleRef.current.addWheel(
       wheelpositions.backRight,
       new Vector3(0, -1, 0),
-      new Vector3(1, 0, 0),
+      new Vector3(0, 0, 1),
       suspensionRestLength,
       radius
     );
 
-    [0, 1, 2, 3].forEach((wheel) => {
-      vehicleRef.current?.setWheelSuspensionStiffness(
-        wheel,
-        suspensionStiffness
-      );
-      vehicleRef.current?.setWheelMaxSuspensionTravel(
-        wheel,
-        maxSuspensionTravel
-      );
-      vehicleRef.current?.setWheelSuspensionCompression(
-        wheel,
-        suspensionDamping
-      );
-      vehicleRef.current?.setWheelSuspensionRelaxation(
-        wheel,
-        suspensionDamping
-      );
-    });
+    // [0, 1, 2, 3].forEach((wheel) => {
+    //   vehicleRef.current?.setWheelSuspensionStiffness(
+    //     wheel,
+    //     suspensionStiffness
+    //   );
+    //   vehicleRef.current?.setWheelMaxSuspensionTravel(
+    //     wheel,
+    //     maxSuspensionTravel
+    //   );
+    //   vehicleRef.current?.setWheelSuspensionCompression(
+    //     wheel,
+    //     suspensionDamping
+    //   );
+    //   vehicleRef.current?.setWheelSuspensionRelaxation(
+    //     wheel,
+    //     suspensionDamping
+    //   );
+    // });
   }, []);
 
-  useBeforePhysicsStep((world) => {
+  useAfterPhysicsStep((world) => {
     const { current: vehicle } = vehicleRef;
     const { current: chassis } = chassisRef;
 
     if (!vehicle || !chassis) return;
 
     vehicle.updateVehicle(world.timestep);
+
+    console.log(vehicle.indexForwardAxis, vehicle.indexUpAxis);
 
     setWheelPositions({
       frontLeft: wheelpositions.frontLeft.setY(
@@ -137,8 +140,8 @@ function Vehicle() {
         position={[0, 3, 0]}
         type="dynamic"
       >
-        <CuboidCollider args={[0.5, 0.5, 2]}>
-          <Box args={[1, 1, 4]}>
+        <CuboidCollider args={[2, 0.5, 0.5]}>
+          <Box args={[4, 1, 1]}>
             <meshNormalMaterial />
           </Box>
         </CuboidCollider>
