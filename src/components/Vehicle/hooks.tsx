@@ -23,7 +23,7 @@ export function useVehicleController(
     }))
   );
 
-  const suspensionRestLength = 0.5;
+  const suspensionRestLength = 0.75;
   const suspensionStiffness = 24;
   const maxSuspensionTravel = 0.5;
   const suspensionDamping = 0.9;

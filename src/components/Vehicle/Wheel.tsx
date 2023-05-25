@@ -31,10 +31,10 @@ function Wheel({ position, steering, radius }: WheelProps) {
   return (
     <group ref={wheelRef}>
       <Cylinder
-        args={[radius, radius, 0.5, 32]}
+        args={[radius, radius, 0.25, 32]}
         rotation={[Math.PI * 0.5, 0, 0]}
       >
-        <meshNormalMaterial />
+        <meshBasicMaterial color={'#161616'} />
       </Cylinder>
     </group>
   );

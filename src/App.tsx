@@ -11,11 +11,20 @@ function App() {
         </Physics>
       </Canvas>
       <div className="absolute inset-0 flex flex-col justify-between p-20 pointer-events-none">
-        <div className="text-4xl font-bold">VEHICLE CONTROLLER</div>
+        <div
+          className="text-5xl font-black leading-10 tracking-tight"
+          style={{
+            mixBlendMode: 'difference',
+          }}
+        >
+          Vehicle
+          <br /> Controller
+        </div>
         <div className="text-xl">
-          <span className="px-6 py-4 text-xl text-white bg-black rounded-xl">
-            Use arrows or WASD
-          </span>
+          <div className="inline-block pb-8 text-sm leading-loose border-b border-current">
+            <span className="font-bold">Use arrows or WASD</span> <br />
+            <span>Use mouse to control camera</span> <br />
+          </div>
         </div>
       </div>
     </div>
