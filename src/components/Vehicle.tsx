@@ -4,12 +4,11 @@ import {
   RapierRigidBody,
   RigidBody,
   useAfterPhysicsStep,
-  useBeforePhysicsStep,
   useRapier
 } from '../lib/react-three-rapier';
 import { useEffect, useRef, useState } from 'react';
 import { DynamicRayCastVehicleController } from '@dimforge/rapier3d-compat';
-import { AxesHelper, Mesh, Vector3 } from 'three';
+import { Mesh, Vector3 } from 'three';
 import { useFrame } from '@react-three/fiber';
 
 function Wheel({ position, radius }: { position: Vector3; radius: number }) {
@@ -33,23 +32,53 @@ function Wheel({ position, radius }: { position: Vector3; radius: number }) {
   );
 }
 
+type Wheel = {
+  origin: Vector3;
+  position: Vector3;
+  rotation: number;
+  radius: number;
+};
+
 function Vehicle() {
   const { world } = useRapier();
   const chassisRef = useRef<RapierRigidBody>(null);
   const vehicleRef = useRef<DynamicRayCastVehicleController>();
 
-  const [wheelpositions, setWheelPositions] = useState({
-    frontLeft: new Vector3(-2, 0, -1),
-    frontRight: new Vector3(-2, 0, 1),
-    backLeft: new Vector3(2, 0, -1),
-    backRight: new Vector3(2, 0, 1)
-  });
+  const [wheels, setWheels] = useState<Wheel[]>([
+    // front left
+    {
+      origin: new Vector3(-2, 0, -1),
+      position: new Vector3(-2, 0, -1),
+      rotation: 0,
+      radius: 0.75
+    },
+    // front right
+    {
+      origin: new Vector3(-2, 0, 1),
+      position: new Vector3(-2, 0, 1),
+      rotation: 0,
+      radius: 0.75
+    },
+    // back left
+    {
+      origin: new Vector3(2, 0, -1),
+      position: new Vector3(2, 0, -1),
+      rotation: 0,
+      radius: 1
+    },
+    // back right
+    {
+      origin: new Vector3(2, 0, 1),
+      position: new Vector3(2, 0, 1),
+      rotation: 0,
+      radius: 1
+    }
+  ]);
 
-  const radius = 0.75;
   const suspensionRestLength = 0.5;
-  // const suspensionStiffness = 5;
-  // const maxSuspensionTravel = 0.5;
-  // const suspensionDamping = 0.8;
+  const suspensionStiffness = 24;
+  const maxSuspensionTravel = 0.5;
+  const suspensionDamping = 0.9;
 
   useEffect(() => {
     const { current: chassis } = chassisRef;
@@ -57,53 +86,40 @@ function Vehicle() {
     if (!chassis) return;
 
     vehicleRef.current = world.createVehicleController(chassis);
-    vehicleRef.current.addWheel(
-      wheelpositions.frontLeft,
-      new Vector3(0, -1, 0),
-      new Vector3(0, 0, 1),
-      suspensionRestLength,
-      radius
-    );
-    vehicleRef.current.addWheel(
-      wheelpositions.frontRight,
-      new Vector3(0, -1, 0),
-      new Vector3(0, 0, 1),
-      suspensionRestLength,
-      radius
-    );
-    vehicleRef.current.addWheel(
-      wheelpositions.backLeft,
-      new Vector3(0, -1, 0),
-      new Vector3(0, 0, 1),
-      suspensionRestLength,
-      radius
-    );
-    vehicleRef.current.addWheel(
-      wheelpositions.backRight,
-      new Vector3(0, -1, 0),
-      new Vector3(0, 0, 1),
-      suspensionRestLength,
-      radius
-    );
 
-    // [0, 1, 2, 3].forEach((wheel) => {
-    //   vehicleRef.current?.setWheelSuspensionStiffness(
-    //     wheel,
-    //     suspensionStiffness
-    //   );
-    //   vehicleRef.current?.setWheelMaxSuspensionTravel(
-    //     wheel,
-    //     maxSuspensionTravel
-    //   );
-    //   vehicleRef.current?.setWheelSuspensionCompression(
-    //     wheel,
-    //     suspensionDamping
-    //   );
-    //   vehicleRef.current?.setWheelSuspensionRelaxation(
-    //     wheel,
-    //     suspensionDamping
-    //   );
-    // });
+    const { current: vehicle } = vehicleRef;
+
+    wheels.forEach(({ position, radius }) => {
+      vehicle.addWheel(
+        position,
+        new Vector3(0, -1, 0),
+        new Vector3(0, 0, 1),
+        suspensionRestLength,
+        radius
+      );
+    });
+
+    wheels.forEach((wheel, index) => {
+      vehicleRef.current?.setWheelSuspensionStiffness(
+        index,
+        suspensionStiffness
+      );
+      vehicleRef.current?.setWheelMaxSuspensionTravel(
+        index,
+        maxSuspensionTravel
+      );
+      vehicleRef.current?.setWheelSuspensionCompression(
+        index,
+        suspensionDamping
+      );
+      vehicleRef.current?.setWheelSuspensionRelaxation(
+        index,
+        suspensionDamping
+      );
+    });
+
+    vehicleRef.current.setWheelSteering(0, Math.PI / 8);
+    vehicleRef.current.setWheelSteering(0, Math.PI / 8);
   }, []);
 
   useAfterPhysicsStep((world) => {
@@ -114,22 +130,16 @@ function Vehicle() {
 
     vehicle.updateVehicle(world.timestep);
 
-    console.log(vehicle.indexForwardAxis, vehicle.indexUpAxis);
+    const updatedWheels = wheels.map((wheel, index) => {
+      const suspension = -1 * (vehicle.wheelSuspensionLength(index) || 0);
+      const { y } = wheel.origin;
 
-    setWheelPositions({
-      frontLeft: wheelpositions.frontLeft.setY(
-        -1 * (vehicle.wheelSuspensionLength(0) || 0)
-      ),
-      frontRight: wheelpositions.frontRight.setY(
-        -1 * (vehicle.wheelSuspensionLength(1) || 0)
-      ),
-      backLeft: wheelpositions.backLeft.setY(
-        -1 * (vehicle.wheelSuspensionLength(2) || 0)
-      ),
-      backRight: wheelpositions.backRight.setY(
-        -1 * (vehicle.wheelSuspensionLength(3) || 0)
-      )
+      wheel.position.setY(y + suspension);
+
+      return wheel;
     });
+
+    setWheels(updatedWheels);
   });
 
   return (
@@ -145,10 +155,10 @@ function Vehicle() {
             <meshNormalMaterial />
           </Box>
         </CuboidCollider>
-        <Wheel position={wheelpositions.frontLeft} radius={radius} />
-        <Wheel position={wheelpositions.frontRight} radius={radius} />
-        <Wheel position={wheelpositions.backLeft} radius={radius} />
-        <Wheel position={wheelpositions.backRight} radius={radius} />
+
+        {wheels.map(({ position, radius }) => (
+          <Wheel {...{ position, radius }} />
+        ))}
       </RigidBody>
     </>
   );
