@@ -8,11 +8,19 @@ import {
 } from '../lib/react-three-rapier';
 import { useEffect, useRef, useState } from 'react';
 import { DynamicRayCastVehicleController } from '@dimforge/rapier3d-compat';
-import { Mesh, Vector3 } from 'three';
+import { Group, Vector3, Quaternion } from 'three';
 import { useFrame } from '@react-three/fiber';
 
-function Wheel({ position, radius }: { position: Vector3; radius: number }) {
-  const wheelRef = useRef<Mesh>(null);
+function Wheel({
+  position,
+  steering,
+  radius
+}: {
+  position: Vector3;
+  steering: number;
+  radius: number;
+}) {
+  const wheelRef = useRef<Group>(null);
 
   useFrame(() => {
     const { current: wheel } = wheelRef;
@@ -20,22 +28,25 @@ function Wheel({ position, radius }: { position: Vector3; radius: number }) {
     if (!wheel) return;
 
     wheel.position.set(position.x, position.y, position.z);
+    wheel.rotation.y = steering;
   });
+
   return (
-    <Cylinder
-      ref={wheelRef}
-      args={[radius, radius, 0.1, 64]}
-      rotation={[Math.PI * 0.5, 0, 0]}
-    >
-      <meshNormalMaterial />
-    </Cylinder>
+    <group ref={wheelRef}>
+      <Cylinder
+        args={[radius, radius, 0.5, 32]}
+        rotation={[Math.PI * 0.5, 0, 0]}
+      >
+        <meshNormalMaterial />
+      </Cylinder>
+    </group>
   );
 }
 
 type Wheel = {
   origin: Vector3;
   position: Vector3;
-  rotation: number;
+  steering: number;
   radius: number;
 };
 
@@ -47,30 +58,30 @@ function Vehicle() {
   const [wheels, setWheels] = useState<Wheel[]>([
     // front left
     {
-      origin: new Vector3(-2, 0, -1),
-      position: new Vector3(-2, 0, -1),
-      rotation: 0,
+      origin: new Vector3(2, 0, -1),
+      position: new Vector3(2, 0, -1),
+      steering: 0,
       radius: 0.75
     },
     // front right
     {
-      origin: new Vector3(-2, 0, 1),
-      position: new Vector3(-2, 0, 1),
-      rotation: 0,
+      origin: new Vector3(2, 0, 1),
+      position: new Vector3(2, 0, 1),
+      steering: 0,
       radius: 0.75
     },
     // back left
     {
-      origin: new Vector3(2, 0, -1),
-      position: new Vector3(2, 0, -1),
-      rotation: 0,
+      origin: new Vector3(-2, 0, -1),
+      position: new Vector3(-2, 0, -1),
+      steering: 0,
       radius: 1
     },
     // back right
     {
-      origin: new Vector3(2, 0, 1),
-      position: new Vector3(2, 0, 1),
-      rotation: 0,
+      origin: new Vector3(-2, 0, 1),
+      position: new Vector3(-2, 0, 1),
+      steering: 0,
       radius: 1
     }
   ]);
@@ -100,26 +111,17 @@ function Vehicle() {
     });
 
     wheels.forEach((wheel, index) => {
-      vehicleRef.current?.setWheelSuspensionStiffness(
-        index,
-        suspensionStiffness
-      );
-      vehicleRef.current?.setWheelMaxSuspensionTravel(
-        index,
-        maxSuspensionTravel
-      );
-      vehicleRef.current?.setWheelSuspensionCompression(
-        index,
-        suspensionDamping
-      );
-      vehicleRef.current?.setWheelSuspensionRelaxation(
-        index,
-        suspensionDamping
-      );
+      vehicle.setWheelSuspensionStiffness(index, suspensionStiffness);
+      vehicle.setWheelMaxSuspensionTravel(index, maxSuspensionTravel);
+      vehicle.setWheelSuspensionCompression(index, suspensionDamping);
+      vehicle.setWheelSuspensionRelaxation(index, suspensionDamping);
     });
 
-    vehicleRef.current.setWheelSteering(0, Math.PI / 8);
-    vehicleRef.current.setWheelSteering(0, Math.PI / 8);
+    vehicle.setWheelSteering(0, Math.PI / 8);
+    vehicle.setWheelSteering(1, Math.PI / 8);
+
+    vehicle.setWheelEngineForce(0, 1);
+    vehicle.setWheelEngineForce(1, 1);
   }, []);
 
   useAfterPhysicsStep((world) => {
@@ -135,6 +137,7 @@ function Vehicle() {
       const { y } = wheel.origin;
 
       wheel.position.setY(y + suspension);
+      wheel.steering = vehicle.wheelSteering(index) || 0;
 
       return wheel;
     });
@@ -156,8 +159,8 @@ function Vehicle() {
           </Box>
         </CuboidCollider>
 
-        {wheels.map(({ position, radius }) => (
-          <Wheel {...{ position, radius }} />
+        {wheels.map(({ position, steering, radius }, index) => (
+          <Wheel key={`wheel-${index}`} {...{ position, steering, radius }} />
         ))}
       </RigidBody>
     </>
