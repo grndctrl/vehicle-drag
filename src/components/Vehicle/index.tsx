@@ -1,18 +1,19 @@
 import { Box, useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
-import { Vector3 } from 'three';
+import { Object3D, Vector3 } from 'three';
+import { useControls } from '../../hooks/useControls';
 import {
   CuboidCollider,
   RapierRigidBody,
   RigidBody,
 } from '../../lib/react-three-rapier';
-import { useControls } from '../hooks/useControls';
 import Wheel from './Wheel';
 import { useVehicleController } from './hooks';
 
 function Vehicle() {
   const chassisRef = useRef<RapierRigidBody>(null);
+  const wheelsRef = useRef<Object3D[]>([]);
 
   const { vehicleController, wheels } = useVehicleController(chassisRef, [
     // front left
@@ -42,8 +43,10 @@ function Vehicle() {
   const texture = useTexture(
     'https://raw.githubusercontent.com/pmndrs/drei-assets/master/prototype/purple/texture_04.png'
   );
+
   useFrame(() => {
     if (!vehicleController) return;
+
     const accelerateForce = 12;
     const brakeForce = 8;
     const steerAngle = Math.PI / 8;
@@ -60,6 +63,18 @@ function Vehicle() {
 
     vehicleController.setWheelSteering(0, steerAngle * steerDirection);
     vehicleController.setWheelSteering(1, steerAngle * steerDirection);
+
+    //
+
+    wheelsRef.current.forEach((object3D, index) => {
+      object3D.position.set(
+        wheels[index].position.x,
+        wheels[index].position.y,
+        wheels[index].position.z
+      );
+
+      object3D.rotation.setFromQuaternion(wheels[index].rotation);
+    });
   });
 
   return (
@@ -78,11 +93,15 @@ function Vehicle() {
             <meshBasicMaterial map={texture} />
           </Box>
         </CuboidCollider>
-
-        {wheels.map(({ position, steering, radius }, index) => (
-          <Wheel key={`wheel-${index}`} {...{ position, steering, radius }} />
-        ))}
       </RigidBody>
+
+      {wheels.map(({ position, radius }, index) => (
+        <Wheel
+          ref={(ref: Object3D) => (wheelsRef.current[index] = ref)}
+          key={`wheel-${index}`}
+          {...{ radius }}
+        />
+      ))}
     </>
   );
 }

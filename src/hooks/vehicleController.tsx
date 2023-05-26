@@ -5,8 +5,15 @@ import {
   RapierRigidBody,
   useAfterPhysicsStep,
   useRapier,
-} from '../../lib/react-three-rapier';
-import { WheelType } from './Wheel';
+} from '../lib/react-three-rapier';
+
+export type WheelType = {
+  connection: Vector3;
+  steering: number;
+  radius: number;
+  worldPosition: Vector3;
+  worldRotation: Quaternion;
+};
 
 const suspensionRestLength = 0.75;
 const suspensionStiffness = 24;
@@ -14,8 +21,8 @@ const maxSuspensionTravel = 0.5;
 const suspensionDamping = 0.9;
 
 export function useVehicleController(
-  chassisRef: RefObject<RapierRigidBody>,
-  wheels: { position: Vector3; radius: number }[]
+  chassisRef: RefObject<RapierRigidBody>
+  // wheels: { position: Vector3; radius: number }[]
 ) {
   const { world } = useRapier();
   const vehicleControllerRef = useRef<DynamicRayCastVehicleController>();
