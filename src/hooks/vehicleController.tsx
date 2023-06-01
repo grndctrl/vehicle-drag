@@ -15,9 +15,9 @@ export type WheelType = {
   worldRotation: Quaternion;
 };
 
-const suspensionRestLength = 0.75;
-const suspensionStiffness = 24;
-const maxSuspensionTravel = 0.5;
+const suspensionRestLength = 0.125;
+const suspensionStiffness = 32;
+const maxSuspensionTravel = 0.125;
 const suspensionDamping = 0.9;
 
 export function useVehicleController(
@@ -74,46 +74,14 @@ export function useVehicleController(
       const { position, rotation } = wheelOrientation;
 
       wheel.position.set(position.x, position.y, position.z);
-
-      // wheel.rotation.set(
-      //   rotation.x,
-      //   rotation.y,
-      //   rotation.z,
-      //   rotation.w,
-      // )
+      wheel.rotation.setFromQuaternion(rotation);
     });
   });
-
-  // useFrame(() => {
-  //   const { current: wheels } = wheelsRef;
-
-  //   wheels?.forEach((wheel, index) => {
-  //     const wheelOrientation = calcWheelOrientation(wheel, index);
-
-  //     if (!wheelOrientation) return;
-
-  //     const { position, rotation } = wheelOrientation;
-
-  //     wheel.position.set(position.x, position.y, position.z);
-
-  //     // wheel.rotation.set(
-  //     //   rotation.x,
-  //     //   rotation.y,
-  //     //   rotation.z,
-  //     //   rotation.w,
-  //     // )
-  //   });
-  // });
 
   const calcWheelOrientation = useCallback(
     (wheel: Object3D, index: number) => {
       const { current: chassis } = chassisRef;
-      // console.log('🚀 ~ file: vehicleController.tsx:94 ~ chassis:', chassis);
 
-      // console.log(
-      //   '🚀 ~ file: vehicleController.tsx:135 ~ vehicleController:',
-      //   vehicleController
-      // );
       if (!chassis || !vehicleController) return;
 
       const wheelConnection =

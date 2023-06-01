@@ -1,4 +1,10 @@
-import { Box, Cone, OrbitControls, useTexture } from '@react-three/drei';
+import {
+  Box,
+  Cone,
+  Environment,
+  OrbitControls,
+  useTexture,
+} from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import { RepeatWrapping } from 'three';
@@ -13,7 +19,7 @@ function Ground() {
   return (
     <RigidBody type="fixed" colliders="cuboid">
       <Box args={[100, 100, 0.5]} rotation={[Math.PI * -0.5, 0, 0]}>
-        <meshBasicMaterial
+        <meshStandardMaterial
           map={texture}
           map-repeat={[10, 10]}
           map-wrapS={RepeatWrapping}
@@ -36,7 +42,7 @@ function Obstacles() {
     <>
       <RigidBody type="dynamic" colliders="cuboid" position={[0, 0.5, 4]}>
         <Box args={[1, 0.2, 1]}>
-          <meshBasicMaterial
+          <meshStandardMaterial
             map={red}
             map-repeat={[0.5, 0.5]}
             map-wrapS={RepeatWrapping}
@@ -47,7 +53,7 @@ function Obstacles() {
 
       <RigidBody type="dynamic" colliders="hull" position={[2, 0.5, 4]}>
         <Box args={[1, 0.2, 1]}>
-          <meshBasicMaterial
+          <meshStandardMaterial
             map={red}
             map-repeat={[0.5, 0.5]}
             map-wrapS={RepeatWrapping}
@@ -58,7 +64,7 @@ function Obstacles() {
 
       <RigidBody type="dynamic" colliders="hull" position={[-3, 0.5, 3]}>
         <Box args={[1, 0.2, 1]}>
-          <meshBasicMaterial
+          <meshStandardMaterial
             map={red}
             map-repeat={[0.5, 0.5]}
             map-wrapS={RepeatWrapping}
@@ -69,7 +75,7 @@ function Obstacles() {
 
       <RigidBody type="dynamic" colliders="hull" position={[4, 2, 2]}>
         <Cone args={[1, 2, 4]}>
-          <meshBasicMaterial map={green} />
+          <meshStandardMaterial map={green} />
         </Cone>
       </RigidBody>
     </>
@@ -85,6 +91,10 @@ function Scene() {
 
   return (
     <>
+      <Environment
+        blur={1} // blur factor between 0 and 1 (default: 0, only works with three 0.146 and up)
+        preset={'city'}
+      />
       <OrbitControls />
       <Vehicle />
       <Ground />

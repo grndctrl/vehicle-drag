@@ -1,40 +1,27 @@
-import { Box, useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
-import { Object3D, Vector3 } from 'three';
+import { MathUtils, Object3D } from 'three';
 import { useControls } from '../../hooks/useControls';
 import { useVehicleController } from '../../hooks/vehicleController';
 import { RapierRigidBody, RigidBody } from '../../lib/react-three-rapier';
-import Wheel from './Wheel';
 
-const wheelPositions = [
-  new Vector3(1.5, 0, -1),
-  new Vector3(1.5, 0, 1),
-  new Vector3(-1.5, 0, -1),
-  new Vector3(-1.5, 0, 1),
-];
+import Chassis from './Chassis';
+import Wheel from './Wheel';
 
 function Vehicle() {
   const chassisRef = useRef<RapierRigidBody>(null);
   const wheelsRef = useRef<Object3D[]>([]);
 
-  const { vehicleController, wheels } = useVehicleController(
-    chassisRef,
-    wheelsRef
-  );
+  const { vehicleController } = useVehicleController(chassisRef, wheelsRef);
 
   const { controls } = useControls();
 
-  const texture = useTexture(
-    'https://raw.githubusercontent.com/pmndrs/drei-assets/master/prototype/purple/texture_04.png'
-  );
-
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (!vehicleController) return;
 
-    const accelerateForce = 12;
-    const brakeForce = 8;
-    const steerAngle = Math.PI / 8;
+    const accelerateForce = 24;
+    const brakeForce = 12;
+    const steerAngle = Math.PI / 6;
 
     const engineForce =
       Number(controls.accelerate) * accelerateForce -
@@ -43,36 +30,61 @@ function Vehicle() {
     vehicleController.setWheelEngineForce(0, engineForce);
     vehicleController.setWheelEngineForce(1, engineForce);
 
+    const currentSteering = vehicleController.wheelSteering(0) || 0;
     const steerDirection =
       Number(controls.steerLeft) + Number(controls.steerRight) * -1;
 
-    vehicleController.setWheelSteering(0, steerAngle * steerDirection);
-    vehicleController.setWheelSteering(1, steerAngle * steerDirection);
+    const steering = MathUtils.damp(
+      currentSteering,
+      steerAngle * steerDirection,
+      128,
+      clock.getDelta()
+    );
+
+    vehicleController.setWheelSteering(0, steering);
+    vehicleController.setWheelSteering(1, steering);
   });
 
   return (
     <>
       <RigidBody
+        canSleep={false}
         ref={chassisRef}
-        colliders={'cuboid'}
-        position={[0, 3, 0]}
+        colliders={'hull'}
+        position={[0, 1, 0]}
         type="dynamic"
       >
-        <Box args={[2, 1, 2]} position={[1, 0, 0]}>
-          <meshBasicMaterial map={texture} />
-        </Box>
-        <Box args={[2, 1, 2]} position={[-1, 0, 0]}>
-          <meshBasicMaterial map={texture} />
-        </Box>
+        <Chassis rotation={[0, Math.PI * -0.5, 0]} />
       </RigidBody>
 
-      {wheelPositions.map((position, index) => (
-        <Wheel
-          ref={(ref: Object3D) => (wheelsRef.current[index] = ref)}
-          key={`wheel-${index}`}
-          position={position}
-        />
-      ))}
+      {/* front left */}
+      <object3D
+        position={[0.65, 0.1, -0.6]}
+        ref={(ref: Object3D) => (wheelsRef.current[0] = ref)}
+      >
+        <Wheel rotation={[0, Math.PI * -0.5, 0]} />
+      </object3D>
+
+      <object3D
+        position={[0.65, 0.1, 0.6]}
+        ref={(ref: Object3D) => (wheelsRef.current[1] = ref)}
+      >
+        <Wheel rotation={[0, Math.PI * 0.5, 0]} />
+      </object3D>
+
+      <object3D
+        position={[-0.95, 0.1, -0.6]}
+        ref={(ref: Object3D) => (wheelsRef.current[2] = ref)}
+      >
+        <Wheel rotation={[0, Math.PI * -0.5, 0]} />
+      </object3D>
+
+      <object3D
+        position={[-0.95, 0.1, 0.6]}
+        ref={(ref: Object3D) => (wheelsRef.current[3] = ref)}
+      >
+        <Wheel rotation={[0, Math.PI * 0.5, 0]} />
+      </object3D>
     </>
   );
 }

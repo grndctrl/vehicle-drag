@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="w-full h-screen">
       <Canvas>
-        <Physics debug>
+        <Physics>
           <Scene />
         </Physics>
       </Canvas>
