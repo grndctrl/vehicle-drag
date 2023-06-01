@@ -3,9 +3,12 @@ import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import { Object3D, Vector3 } from 'three';
 import { useControls } from '../../hooks/useControls';
-import { useVehicleController } from '../../hooks/vehicleController';
-import { RapierRigidBody, RigidBody } from '../../lib/react-three-rapier';
-import Wheel from './Wheel';
+import {
+  CuboidCollider,
+  RapierRigidBody,
+  RigidBody,
+} from '../../lib/react-three-rapier';
+import { useVehicleController } from './hooks';
 
 const wheelPositions = [
   new Vector3(1.5, 0, -1),
@@ -20,7 +23,7 @@ function Vehicle() {
 
   const { vehicleController, wheels } = useVehicleController(
     chassisRef,
-    wheelsRef
+    wheelPositions
   );
 
   const { controls } = useControls();
@@ -54,25 +57,27 @@ function Vehicle() {
     <>
       <RigidBody
         ref={chassisRef}
-        colliders={'cuboid'}
+        colliders={false}
         position={[0, 3, 0]}
         type="dynamic"
       >
-        <Box args={[2, 1, 2]} position={[1, 0, 0]}>
-          <meshBasicMaterial map={texture} />
-        </Box>
-        <Box args={[2, 1, 2]} position={[-1, 0, 0]}>
-          <meshBasicMaterial map={texture} />
-        </Box>
+        <CuboidCollider args={[2, 0.5, 1]}>
+          <Box args={[2, 1, 2]} position={[1, 0, 0]}>
+            <meshBasicMaterial map={texture} />
+          </Box>
+          <Box args={[2, 1, 2]} position={[-1, 0, 0]}>
+            <meshBasicMaterial map={texture} />
+          </Box>
+        </CuboidCollider>
       </RigidBody>
 
-      {wheelPositions.map((position, index) => (
+      {/* {wheelPositions.map((position, index) => (
         <Wheel
           ref={(ref: Object3D) => (wheelsRef.current[index] = ref)}
           key={`wheel-${index}`}
-          position={position}
+          {...{ position }}
         />
-      ))}
+      ))} */}
     </>
   );
 }
