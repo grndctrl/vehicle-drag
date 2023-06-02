@@ -71,9 +71,11 @@ export function useVehicleController(
         vehicleController.wheelChassisConnectionPointCs(index)?.y || 0;
       const suspension = vehicleController.wheelSuspensionLength(index) || 0;
       const steering = vehicleController.wheelSteering(index) || 0;
+      const rotation = vehicleController.wheelRotation(index) || 0;
 
       wheel.position.setY(connection - suspension);
       wheel.rotation.y = steering;
+      wheel.rotation.z = -rotation;
     });
   });
 
