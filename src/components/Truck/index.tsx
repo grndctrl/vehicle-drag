@@ -64,7 +64,7 @@ function Vehicle() {
   useFrame(({ clock }) => {
     if (!vehicleController) return;
 
-    const accelerateForce = 24;
+    const accelerateForce = 48;
     const brakeForce = 12;
     const steerAngle = Math.PI / 6;
 
@@ -92,6 +92,7 @@ function Vehicle() {
   return (
     <>
       <RigidBody
+        linearDamping={0.5}
         canSleep={false}
         ref={chassisRef}
         colliders={false}

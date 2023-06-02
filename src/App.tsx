@@ -8,7 +8,7 @@ import { Physics } from './lib/react-three-rapier';
 function App() {
   const { debug } = useControls({
     physics: folder({
-      debug: true,
+      debug: false,
     }),
   });
 
@@ -52,7 +52,7 @@ function App() {
 
   return (
     <div className="w-full h-screen">
-      <Canvas camera={{ fov: 24, position: [15, 10, 10] }}>
+      <Canvas camera={{ fov: 24, position: [15, 10, 10] }} shadows>
         <Physics debug={debug}>
           <Scene vehicle={vehicle} />
         </Physics>

@@ -1,7 +1,7 @@
 import { Box, Environment, OrbitControls, useTexture } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import { useEffect } from 'react';
-import { RepeatWrapping } from 'three';
+import { useRef } from 'react';
+import { DirectionalLight, RepeatWrapping } from 'three';
 import { RigidBody } from '../lib/react-three-rapier';
 import Obstacle from './Obstacle';
 import Tractor from './Tractor';
@@ -14,7 +14,7 @@ function Ground() {
 
   return (
     <RigidBody type="fixed" colliders="cuboid">
-      <Box args={[100, 100, 0.5]} rotation={[Math.PI * -0.5, 0, 0]}>
+      <Box position={[0, -0.5, 0]} args={[100, 1, 100]} receiveShadow>
         <meshStandardMaterial
           map={texture}
           map-repeat={[10, 10]}
@@ -39,22 +39,36 @@ function Obstacles() {
 
 function Scene({ vehicle }: { vehicle: 'tractor' | 'truck' }) {
   const { camera } = useThree();
-
-  useEffect(() => {
-    camera.position.setY(2);
-  });
+  const directionalLightRef = useRef<DirectionalLight>(null);
 
   return (
     <>
       <Environment
         blur={1} // blur factor between 0 and 1 (default: 0, only works with three 0.146 and up)
-        preset={'city'}
+        preset={'dawn'}
       />
       <OrbitControls />
-      {/* <Vehicle /> */}
+
       {vehicle === 'tractor' && <Tractor />}
       {vehicle === 'truck' && <Truck />}
       <Ground />
+
+      <directionalLight
+        castShadow
+        color={'#ff8800'}
+        intensity={1}
+        position={[10, 6, 6]}
+        shadow-mapSize={[1024, 1024]}
+      >
+        <orthographicCamera
+          attach="shadow-camera"
+          left={-20}
+          right={20}
+          top={20}
+          bottom={-20}
+        />
+      </directionalLight>
+
       <Obstacles />
     </>
   );

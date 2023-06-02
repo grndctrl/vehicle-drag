@@ -107,9 +107,9 @@ function Tractor() {
   useFrame(({ clock }) => {
     if (!vehicleController) return;
 
-    const accelerateForce = 24;
+    const accelerateForce = 48;
     const brakeForce = 12;
-    const steerAngle = Math.PI / 6;
+    const steerAngle = Math.PI / 12;
 
     const engineForce =
       Number(controls.accelerate) * accelerateForce -
@@ -135,6 +135,8 @@ function Tractor() {
   return (
     <>
       <RigidBody
+        linearDamping={0.5}
+        angularDamping={0.0}
         canSleep={false}
         ref={chassisRef}
         colliders={false}
