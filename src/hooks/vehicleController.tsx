@@ -15,10 +15,10 @@ export type WheelType = {
   worldRotation: Quaternion;
 };
 
+// default values
 const suspensionRestLength = 0.125;
 const suspensionStiffness = 24;
 const maxSuspensionTravel = 0.125;
-const suspensionDamping = 0.9;
 
 export function useVehicleController(
   chassisRef: RefObject<RapierRigidBody>,
@@ -52,8 +52,6 @@ export function useVehicleController(
     wheels.forEach((_wheel, index) => {
       vehicle.setWheelSuspensionStiffness(index, suspensionStiffness);
       vehicle.setWheelMaxSuspensionTravel(index, maxSuspensionTravel);
-      // vehicle.setWheelSuspensionCompression(index, suspensionDamping);
-      // vehicle.setWheelSuspensionRelaxation(index, suspensionDamping);
     });
 
     setVehicleController(vehicle);

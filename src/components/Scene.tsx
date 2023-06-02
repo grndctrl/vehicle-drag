@@ -1,7 +1,5 @@
-import { Box, Environment, OrbitControls, useTexture } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
-import { useRef } from 'react';
-import { DirectionalLight, RepeatWrapping } from 'three';
+import { Box, OrbitControls, SoftShadows, useTexture } from '@react-three/drei';
+import { RepeatWrapping } from 'three';
 import { RigidBody } from '../lib/react-three-rapier';
 import Obstacle from './Obstacle';
 import Tractor from './Tractor';
@@ -38,26 +36,28 @@ function Obstacles() {
 }
 
 function Scene({ vehicle }: { vehicle: 'tractor' | 'truck' }) {
-  const { camera } = useThree();
-  const directionalLightRef = useRef<DirectionalLight>(null);
-
   return (
     <>
-      <Environment
-        blur={1} // blur factor between 0 and 1 (default: 0, only works with three 0.146 and up)
-        preset={'dawn'}
-      />
       <OrbitControls />
-
+      <SoftShadows size={10} samples={20} />
       {vehicle === 'tractor' && <Tractor />}
       {vehicle === 'truck' && <Truck />}
       <Ground />
 
       <directionalLight
+        color={'#bcbffe'}
+        intensity={0.5}
+        position={[-10, 2, -6]}
+        shadow-mapSize={[1024, 1024]}
+      />
+
+      <ambientLight intensity={0.1} />
+
+      <directionalLight
         castShadow
-        color={'#ff8800'}
-        intensity={1}
-        position={[10, 6, 6]}
+        color={'#feefc4'}
+        intensity={2}
+        position={[10, 12, 6]}
         shadow-mapSize={[1024, 1024]}
       >
         <orthographicCamera

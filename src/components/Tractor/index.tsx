@@ -136,7 +136,6 @@ function Tractor() {
     <>
       <RigidBody
         linearDamping={0.5}
-        angularDamping={0.0}
         canSleep={false}
         ref={chassisRef}
         colliders={false}
