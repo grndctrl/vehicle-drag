@@ -1,5 +1,5 @@
 import { DynamicRayCastVehicleController } from '@dimforge/rapier3d-compat';
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import { Box3, Object3D, Quaternion, Vector3 } from 'three';
 import {
   RapierRigidBody,
@@ -16,7 +16,7 @@ export type WheelType = {
 };
 
 const suspensionRestLength = 0.125;
-const suspensionStiffness = 32;
+const suspensionStiffness = 24;
 const maxSuspensionTravel = 0.125;
 const suspensionDamping = 0.9;
 
@@ -52,8 +52,8 @@ export function useVehicleController(
     wheels.forEach((_wheel, index) => {
       vehicle.setWheelSuspensionStiffness(index, suspensionStiffness);
       vehicle.setWheelMaxSuspensionTravel(index, maxSuspensionTravel);
-      vehicle.setWheelSuspensionCompression(index, suspensionDamping);
-      vehicle.setWheelSuspensionRelaxation(index, suspensionDamping);
+      // vehicle.setWheelSuspensionCompression(index, suspensionDamping);
+      // vehicle.setWheelSuspensionRelaxation(index, suspensionDamping);
     });
 
     setVehicleController(vehicle);
@@ -67,63 +67,15 @@ export function useVehicleController(
     const { current: wheels } = wheelsRef;
 
     wheels?.forEach((wheel, index) => {
-      const wheelOrientation = calcWheelOrientation(wheel, index);
+      const connection =
+        vehicleController.wheelChassisConnectionPointCs(index)?.y || 0;
+      const suspension = vehicleController.wheelSuspensionLength(index) || 0;
+      const steering = vehicleController.wheelSteering(index) || 0;
 
-      if (!wheelOrientation) return;
-
-      const { position, rotation } = wheelOrientation;
-
-      wheel.position.set(position.x, position.y, position.z);
-      wheel.rotation.setFromQuaternion(rotation);
+      wheel.position.setY(connection - suspension);
+      wheel.rotation.y = steering;
     });
   });
-
-  const calcWheelOrientation = useCallback(
-    (wheel: Object3D, index: number) => {
-      const { current: chassis } = chassisRef;
-
-      if (!chassis || !vehicleController) return;
-
-      const wheelConnection =
-        vehicleController.wheelChassisConnectionPointCs(index);
-      const wheelSteering = vehicleController.wheelSteering(index);
-
-      if (!wheelConnection || wheelSteering === null) return;
-
-      const chassisPosition = new Vector3(
-        chassis.translation().x,
-        chassis.translation().y,
-        chassis.translation().z
-      );
-
-      const chassisRotation = new Quaternion(
-        chassis.rotation().x,
-        chassis.rotation().y,
-        chassis.rotation().z,
-        chassis.rotation().w
-      );
-
-      const wheelRotation = new Quaternion()
-        .setFromAxisAngle(new Vector3(0, 1, 0), wheelSteering)
-        .multiply(chassisRotation);
-
-      const wheelPosition = new Vector3(
-        wheelConnection.x,
-        wheelConnection.y,
-        wheelConnection.z
-      )
-        .clone()
-        .sub(
-          new Vector3(0, vehicleController.wheelSuspensionLength(index) || 0, 0)
-        )
-        .applyQuaternion(chassisRotation)
-        .add(chassisPosition);
-
-      return { position: wheelPosition, rotation: wheelRotation };
-    },
-
-    [chassisRef, vehicleController]
-  );
 
   return {
     vehicleController,

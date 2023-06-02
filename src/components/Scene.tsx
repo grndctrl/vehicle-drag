@@ -1,15 +1,11 @@
-import {
-  Box,
-  Cone,
-  Environment,
-  OrbitControls,
-  useTexture,
-} from '@react-three/drei';
+import { Box, Environment, OrbitControls, useTexture } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import { RepeatWrapping } from 'three';
 import { RigidBody } from '../lib/react-three-rapier';
-import Vehicle from './Vehicle';
+import Obstacle from './Obstacle';
+import Tractor from './Tractor';
+import Truck from './Truck';
 
 function Ground() {
   const texture = useTexture(
@@ -31,58 +27,17 @@ function Ground() {
 }
 
 function Obstacles() {
-  const red = useTexture(
-    'https://raw.githubusercontent.com/pmndrs/drei-assets/master/prototype/red/texture_02.png'
-  );
-  const green = useTexture(
-    'https://raw.githubusercontent.com/pmndrs/drei-assets/master/prototype/green/texture_02.png'
-  );
-
   return (
     <>
-      <RigidBody type="dynamic" colliders="cuboid" position={[0, 0.5, 4]}>
-        <Box args={[1, 0.2, 1]}>
-          <meshStandardMaterial
-            map={red}
-            map-repeat={[0.5, 0.5]}
-            map-wrapS={RepeatWrapping}
-            map-wrapT={RepeatWrapping}
-          />
-        </Box>
-      </RigidBody>
-
-      <RigidBody type="dynamic" colliders="hull" position={[2, 0.5, 4]}>
-        <Box args={[1, 0.2, 1]}>
-          <meshStandardMaterial
-            map={red}
-            map-repeat={[0.5, 0.5]}
-            map-wrapS={RepeatWrapping}
-            map-wrapT={RepeatWrapping}
-          />
-        </Box>
-      </RigidBody>
-
-      <RigidBody type="dynamic" colliders="hull" position={[-3, 0.5, 3]}>
-        <Box args={[1, 0.2, 1]}>
-          <meshStandardMaterial
-            map={red}
-            map-repeat={[0.5, 0.5]}
-            map-wrapS={RepeatWrapping}
-            map-wrapT={RepeatWrapping}
-          />
-        </Box>
-      </RigidBody>
-
-      <RigidBody type="dynamic" colliders="hull" position={[4, 2, 2]}>
-        <Cone args={[1, 2, 4]}>
-          <meshStandardMaterial map={green} />
-        </Cone>
-      </RigidBody>
+      <Obstacle.TreeA position={[0, 0, -5]} scale={[4.5, 4.5, 4.5]} />
+      <Obstacle.TreeA position={[5, 0, -5]} scale={[4, 4, 4]} />
+      <Obstacle.TreeA position={[0, 0, 5]} scale={[5, 5, 5]} />
+      <Obstacle.TreeA position={[-5, 0, 5]} scale={[4, 4, 4]} />
     </>
   );
 }
 
-function Scene() {
+function Scene({ vehicle }: { vehicle: 'tractor' | 'truck' }) {
   const { camera } = useThree();
 
   useEffect(() => {
@@ -96,7 +51,9 @@ function Scene() {
         preset={'city'}
       />
       <OrbitControls />
-      <Vehicle />
+      {/* <Vehicle /> */}
+      {vehicle === 'tractor' && <Tractor />}
+      {vehicle === 'truck' && <Truck />}
       <Ground />
       <Obstacles />
     </>
