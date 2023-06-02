@@ -33,28 +33,48 @@ export default function Chassis(props: JSX.IntrinsicElements['group']) {
 
   return (
     <group {...props}>
-      <mesh geometry={nodes.Mesh_body.geometry} material={materials.plastic} />
       <mesh
+        castShadow
+        receiveShadow
+        geometry={nodes.Mesh_body.geometry}
+        material={materials.plastic}
+      />
+      <mesh
+        castShadow
+        receiveShadow
         geometry={nodes.Mesh_body_1.geometry}
         material={materials.carTire}
       />
       <mesh
+        castShadow
+        receiveShadow
         geometry={nodes.Mesh_body_2.geometry}
         material={materials.paintGreen}
       />
       <mesh
+        castShadow
+        receiveShadow
         geometry={nodes.Mesh_body_3.geometry}
         material={materials.lightFront}
       />
       <mesh
+        castShadow
+        receiveShadow
         geometry={nodes.Mesh_body_4.geometry}
         material={materials._defaultMat}
       />
       <mesh
+        castShadow
+        receiveShadow
         geometry={nodes.Mesh_body_5.geometry}
         material={materials.lightBack}
       />
-      <mesh geometry={nodes.Mesh_body_6.geometry} material={materials.window} />
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={nodes.Mesh_body_6.geometry}
+        material={materials.window}
+      />
     </group>
   );
 }
