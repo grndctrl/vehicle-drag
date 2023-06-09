@@ -1,8 +1,7 @@
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useControls as useLeva } from 'leva';
-import { useEffect, useRef } from 'react';
-import { MathUtils, Object3D } from 'three';
-import { useControls } from '../../hooks/useControls';
+import { RefObject, useEffect, useRef } from 'react';
+import * as THREE from 'three';
 import { useVehicleController } from '../../hooks/vehicleController';
 import {
   MeshCollider,
@@ -10,12 +9,24 @@ import {
   RigidBody,
 } from '../../lib/react-three-rapier';
 
+import { useDrag } from '@use-gesture/react';
+import { isLeft } from '../../utilities/vector';
 import Chassis from './Chassis';
+import DragIndicator from './DragIndicator';
 import Wheel from './Wheel';
 
-function Vehicle() {
+type VehicleProps = {
+  groundRef: RefObject<THREE.Mesh>;
+};
+
+function Vehicle({ groundRef }: VehicleProps) {
+  const meshRef = useRef<THREE.Mesh>(null);
   const chassisRef = useRef<RapierRigidBody>(null);
-  const wheelsRef = useRef<Object3D[]>([]);
+  const wheelsRef = useRef<THREE.Object3D[]>([]);
+  const dragIndicatorRef = useRef<THREE.Object3D>(null);
+  const steeringRef = useRef<number>(0);
+  const engineForceRef = useRef<number>(0);
+  const showDragIndicatorRef = useRef<boolean>(false);
 
   const { stiffness, rest, travel } = useLeva({
     stiffness: {
@@ -40,7 +51,52 @@ function Vehicle() {
 
   const { vehicleController } = useVehicleController(chassisRef, wheelsRef);
 
-  const { controls } = useControls();
+  function calcPropulsion(target: THREE.Vector2) {
+    const { current: chassis } = chassisRef;
+
+    if (!chassis) return { engineForce: 0, steering: 0 };
+
+    console.log('am here');
+
+    const rotation = new THREE.Quaternion(
+      chassis.rotation().x,
+      chassis.rotation().y,
+      chassis.rotation().z,
+      chassis.rotation().w
+    );
+    const position = new THREE.Vector2(
+      chassis.translation().x,
+      chassis.translation().z
+    );
+
+    const forward = new THREE.Vector3(1, 0, 0).applyQuaternion(rotation);
+
+    let angle = target
+      .clone()
+      .sub(position)
+      .angleTo(new THREE.Vector2(forward.x, forward.z));
+
+    let engineForce = 24;
+    let steering = 0;
+    const steeringDirection = isLeft(
+      position,
+      position.clone().add(new THREE.Vector2(forward.x, forward.z)),
+      target
+    )
+      ? 1
+      : -1;
+
+    if (angle > Math.PI / 2) {
+      engineForce = -12;
+      angle = Math.PI - angle;
+    }
+
+    if (angle > Math.PI / 24) {
+      steering = Math.min(angle, Math.PI / 4) * steeringDirection;
+    }
+
+    return { engineForce, steering };
+  }
 
   useEffect(() => {
     if (!vehicleController) return;
@@ -61,32 +117,78 @@ function Vehicle() {
     vehicleController.setWheelMaxSuspensionTravel(3, travel);
   }, [rest, stiffness, travel, vehicleController]);
 
-  useFrame(({ clock }) => {
+  const { raycaster, camera, pointer } = useThree();
+
+  const bind = useDrag(({ down }) => {
+    const { current: ground } = groundRef;
+    if (!ground || !vehicleController) return;
+
+    if (down) {
+      showDragIndicatorRef.current = true;
+
+      raycaster.setFromCamera(pointer, camera);
+      const intersections = raycaster.intersectObject(ground);
+
+      if (intersections.length > 0) {
+        const { point } = intersections[0];
+        const target = new THREE.Vector2(point.x, point.z);
+        const { steering, engineForce } = calcPropulsion(target);
+
+        steeringRef.current = steering;
+        engineForceRef.current = engineForce;
+      }
+    } else {
+      showDragIndicatorRef.current = false;
+
+      steeringRef.current = 0;
+      engineForceRef.current = 0;
+    }
+  });
+
+  useFrame(() => {
     if (!vehicleController) return;
 
-    const accelerateForce = 48;
-    const brakeForce = 12;
-    const steerAngle = Math.PI / 6;
+    const { current: steering } = steeringRef;
+    const { current: engineForce } = engineForceRef;
 
-    const engineForce =
-      Number(controls.accelerate) * accelerateForce -
-      Number(controls.brake) * brakeForce;
+    const currentSteering = vehicleController.wheelSteering(0) || 0;
+    const lerpSteering = THREE.MathUtils.lerp(currentSteering, steering, 0.25);
+
+    vehicleController.setWheelSteering(0, lerpSteering);
+    vehicleController.setWheelSteering(1, lerpSteering);
 
     vehicleController.setWheelEngineForce(0, engineForce);
     vehicleController.setWheelEngineForce(1, engineForce);
 
-    const currentSteering = vehicleController.wheelSteering(0) || 0;
-    const steerDirection =
-      Number(controls.steerLeft) + Number(controls.steerRight) * -1;
+    //
 
-    const steering = MathUtils.lerp(
-      currentSteering,
-      steerAngle * steerDirection,
-      0.5
+    const { current: chassis } = chassisRef;
+    const { current: dragIndicator } = dragIndicatorRef;
+
+    if (!chassis || !dragIndicator) return;
+
+    dragIndicator.position.setX(chassis.translation().x);
+    dragIndicator.position.setZ(chassis.translation().z);
+
+    const rotation = new THREE.Quaternion(
+      chassis.rotation().x,
+      chassis.rotation().y,
+      chassis.rotation().z,
+      chassis.rotation().w
     );
 
-    vehicleController.setWheelSteering(0, steering);
-    vehicleController.setWheelSteering(1, steering);
+    const euler = new THREE.Euler().setFromQuaternion(rotation);
+
+    const forward = new THREE.Vector3(1, 0, 0).applyQuaternion(rotation);
+
+    let angle = euler.y;
+    if (forward.x < 0) {
+      angle = Math.PI - angle;
+    }
+
+    angle += engineForce < 0 ? Math.PI - lerpSteering : lerpSteering;
+
+    dragIndicator.rotation.set(0, angle, 0);
   });
 
   return (
@@ -100,37 +202,45 @@ function Vehicle() {
         type="dynamic"
       >
         <MeshCollider type="hull">
-          <Chassis rotation={[0, Math.PI * -0.5, 0]} />
+          <object3D {...bind()}>
+            <Chassis rotation={[0, Math.PI * -0.5, 0]} />
+          </object3D>
         </MeshCollider>
 
         <object3D
           position={[0.65, 0.1, -0.6]}
-          ref={(ref: Object3D) => (wheelsRef.current[0] = ref)}
+          ref={(ref: THREE.Object3D) => (wheelsRef.current[0] = ref)}
         >
           <Wheel rotation={[0, Math.PI * -0.5, 0]} />
         </object3D>
 
         <object3D
           position={[0.65, 0.1, 0.6]}
-          ref={(ref: Object3D) => (wheelsRef.current[1] = ref)}
+          ref={(ref: THREE.Object3D) => (wheelsRef.current[1] = ref)}
         >
           <Wheel rotation={[0, Math.PI * 0.5, 0]} />
         </object3D>
 
         <object3D
           position={[-0.95, 0.1, -0.6]}
-          ref={(ref: Object3D) => (wheelsRef.current[2] = ref)}
+          ref={(ref: THREE.Object3D) => (wheelsRef.current[2] = ref)}
         >
           <Wheel rotation={[0, Math.PI * -0.5, 0]} />
         </object3D>
 
         <object3D
           position={[-0.95, 0.1, 0.6]}
-          ref={(ref: Object3D) => (wheelsRef.current[3] = ref)}
+          ref={(ref: THREE.Object3D) => (wheelsRef.current[3] = ref)}
         >
           <Wheel rotation={[0, Math.PI * 0.5, 0]} />
         </object3D>
       </RigidBody>
+      <DragIndicator
+        ref={dragIndicatorRef}
+        isVisible={showDragIndicatorRef}
+        position={[0, 0.1, 0]}
+        scale={[0.05, 0.05, 0.05]}
+      />
     </>
   );
 }

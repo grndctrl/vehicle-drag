@@ -1,28 +1,37 @@
-import { Box, OrbitControls, SoftShadows, useTexture } from '@react-three/drei';
-import { RepeatWrapping } from 'three';
+import {
+  Box,
+  GizmoHelper,
+  GizmoViewcube,
+  OrthographicCamera,
+  SoftShadows,
+  useTexture,
+} from '@react-three/drei';
+import { forwardRef, useEffect, useRef } from 'react';
+import * as THREE from 'three';
 import { RigidBody } from '../lib/react-three-rapier';
 import Obstacle from './Obstacle';
-import Tractor from './Tractor';
 import Truck from './Truck';
 
-function Ground() {
+type GroundProps = {};
+
+const Ground = forwardRef<THREE.Mesh, GroundProps>((props, ref) => {
   const texture = useTexture(
     'https://raw.githubusercontent.com/pmndrs/drei-assets/master/prototype/light/texture_08.png'
   );
 
   return (
     <RigidBody type="fixed" colliders="cuboid">
-      <Box position={[0, -0.5, 0]} args={[100, 1, 100]} receiveShadow>
+      <Box ref={ref} position={[0, -0.5, 0]} args={[100, 1, 100]} receiveShadow>
         <meshStandardMaterial
           map={texture}
           map-repeat={[10, 10]}
-          map-wrapS={RepeatWrapping}
-          map-wrapT={RepeatWrapping}
+          map-wrapS={THREE.RepeatWrapping}
+          map-wrapT={THREE.RepeatWrapping}
         />
       </Box>
     </RigidBody>
   );
-}
+});
 
 function Obstacles() {
   return (
@@ -35,14 +44,50 @@ function Obstacles() {
   );
 }
 
-function Scene({ vehicle }: { vehicle: 'tractor' | 'truck' }) {
+function IsometricCamera() {
+  const cameraRef = useRef<THREE.OrthographicCamera>(null);
+
+  useEffect(() => {
+    const { current: camera } = cameraRef;
+
+    if (!camera) return;
+
+    camera.rotation.order = 'YXZ';
+    camera.translateZ(10);
+  }, [cameraRef]);
+
+  return (
+    <OrthographicCamera
+      ref={cameraRef}
+      makeDefault
+      zoom={50}
+      near={-100}
+      far={500}
+      rotation={[Math.atan(-1 / Math.sqrt(2)), Math.PI / 4, 0]}
+      onUpdate={(self) => self.updateProjectionMatrix()}
+    />
+  );
+}
+
+function Scene() {
+  const groundRef = useRef<THREE.Mesh>(null);
+
   return (
     <>
-      <OrbitControls />
+      <IsometricCamera />
+
+      <GizmoHelper
+        alignment="bottom-right" // widget alignment within scene
+        margin={[80, 80]} // widget margins (X, Y)
+      >
+        <GizmoViewcube />
+      </GizmoHelper>
+
       <SoftShadows size={10} samples={20} />
-      {vehicle === 'tractor' && <Tractor />}
-      {vehicle === 'truck' && <Truck />}
-      <Ground />
+
+      <Truck groundRef={groundRef} />
+
+      <Ground ref={groundRef} />
 
       <directionalLight
         color={'#bcbffe'}

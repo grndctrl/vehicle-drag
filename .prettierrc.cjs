@@ -6,6 +6,4 @@ module.exports = {
   semi: true,
   singleQuote: true,
   arrowParens: 'always',
-  organizeImportsSkipDestructiveCodeActions: false,
-  plugins: ['prettier-plugin-organize-imports'],
 };

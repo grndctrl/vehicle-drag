@@ -55,6 +55,12 @@ export function useVehicleController(
     });
 
     setVehicleController(vehicle);
+
+    return () => {
+      if (vehicleController) {
+        world.removeVehicleController(vehicleController);
+      }
+    };
   }, []);
 
   useAfterPhysicsStep((world) => {

@@ -1,7 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import classNames from 'classnames';
 import { folder, useControls } from 'leva';
-import { useState } from 'react';
 import Scene from './components/Scene';
 import { Physics } from './lib/react-three-rapier';
 
@@ -12,58 +10,21 @@ function App() {
     }),
   });
 
-  const [vehicle, setVehicle] = useState<'tractor' | 'truck'>('tractor');
-
-  const truckButton = classNames(
-    'transition-colors',
-    'uppercase',
-    'font-bold',
-    'rounded-xl',
-    'my-2',
-    'py-2',
-    'w-32',
-    'hover:bg-white',
-    'hover:text-green-400',
-    {
-      'text-white': vehicle === 'truck',
-      'text-gray-400': vehicle !== 'truck',
-      'bg-green-400': vehicle === 'truck',
-      'bg-gray-200': vehicle !== 'truck',
-    }
-  );
-
-  const tractorButton = classNames(
-    'transition-colors',
-    'uppercase',
-    'font-bold',
-    'rounded-xl',
-    'my-2',
-    'py-2',
-    'w-32',
-    'hover:bg-white',
-    'hover:text-indigo-500',
-    {
-      'text-white': vehicle === 'tractor',
-      'text-gray-400': vehicle !== 'tractor',
-      'bg-indigo-500': vehicle === 'tractor',
-      'bg-gray-200': vehicle !== 'tractor',
-    }
-  );
-
   return (
-    <div className="w-full h-screen">
-      <Canvas camera={{ fov: 24, position: [15, 10, 10] }} shadows>
+    <div className="w-full h-screen touch-none">
+      <Canvas shadows>
         <Physics debug={debug}>
-          <Scene vehicle={vehicle} />
+          <Scene vehicle={'truck'} />
         </Physics>
       </Canvas>
-      <div className="absolute inset-0 flex flex-col justify-between p-20 pointer-events-none">
+
+      {/* <div className="absolute inset-0 flex flex-col justify-between p-20 pointer-events-none">
         <div className="">
           <h1 className="text-5xl font-black leading-10 tracking-tight">
             Vehicle
             <br /> Controller
           </h1>
-          <ul className="mt-10 pointer-events-auto">
+          <ul className="mt-10">
             <li>
               <button
                 className={tractorButton}
@@ -88,7 +49,7 @@ function App() {
             <span>Use mouse to control camera</span> <br />
           </div>
         </div>
-      </div>
+      </div>*/}
     </div>
   );
 }
