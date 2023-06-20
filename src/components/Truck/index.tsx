@@ -163,9 +163,17 @@ function Vehicle({ groundRef }: VehicleProps) {
     //
 
     const { current: chassis } = chassisRef;
-    const { current: dragIndicator } = dragIndicatorRef;
+    if (!chassis) return;
 
-    if (!chassis || !dragIndicator) return;
+    const translation = new THREE.Vector3(
+      chassis.translation().x,
+      chassis.translation().y,
+      chassis.translation().z
+    );
+    camera.position.lerp(translation, 0.1);
+
+    const { current: dragIndicator } = dragIndicatorRef;
+    if (!dragIndicator) return;
 
     dragIndicator.position.setX(chassis.translation().x);
     dragIndicator.position.setZ(chassis.translation().z);
