@@ -13,8 +13,8 @@ function App() {
   return (
     <div className="w-full h-screen touch-none">
       <Canvas shadows>
-        <Physics debug={debug}>
-          <Scene vehicle={'truck'} />
+        <Physics debug={debug} timeStep={'vary'}>
+          <Scene />
         </Physics>
       </Canvas>
 
