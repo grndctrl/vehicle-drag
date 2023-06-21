@@ -1,54 +1,52 @@
-import type Rapier from "@dimforge/rapier3d-compat";
+import type Rapier from '@dimforge/rapier3d-compat';
 import {
   Collider,
   ColliderHandle,
   EventQueue,
   RigidBody,
   RigidBodyHandle,
-  World
-} from "@dimforge/rapier3d-compat";
-import { useThree } from "@react-three/fiber";
-import React, {
-  createContext,
+  World,
+} from '@dimforge/rapier3d-compat';
+import { useThree } from '@react-three/fiber';
+import {
   FC,
   ReactNode,
+  createContext,
   useCallback,
   useEffect,
   useMemo,
-  useRef,
-  useState
-} from "react";
-import { MathUtils, Matrix4, Object3D, Quaternion, Vector3 } from "three";
-import { useAsset } from "use-asset";
+  useState,
+} from 'react';
+import { MathUtils, Matrix4, Object3D, Quaternion, Vector3 } from 'three';
+import { useAsset } from 'use-asset';
 import {
-  CollisionPayload,
   CollisionEnterHandler,
   CollisionExitHandler,
+  CollisionPayload,
   ContactForceHandler,
   IntersectionEnterHandler,
   IntersectionExitHandler,
   RigidBodyAutoCollider,
-  Vector3Tuple
-} from "../types";
+  Vector3Tuple,
+} from '../types';
 
 import {
   _matrix4,
   _position,
   _rotation,
-  _scale
-} from "../utils/shared-objects";
+  _scale,
+} from '../utils/shared-objects';
+import { createSingletonProxy } from '../utils/singleton-proxy';
 import {
   rapierQuaternionToQuaternion,
   useConst,
-  vectorArrayToVector3
-} from "../utils/utils";
-import FrameStepper from "./FrameStepper";
-import { Debug } from "./Debug";
-import { useImperativeInstance } from "../hooks/use-imperative-instance";
-import { createSingletonProxy } from "../utils/singleton-proxy";
+  vectorArrayToVector3,
+} from '../utils/utils';
+import { Debug } from './Debug';
+import FrameStepper from './FrameStepper';
 
 export interface RigidBodyState {
-  meshType: "instancedMesh" | "mesh";
+  meshType: 'instancedMesh' | 'mesh';
   rigidBody: RigidBody;
   object: Object3D;
   invertedWorldMatrix: Matrix4;
@@ -61,7 +59,7 @@ export interface RigidBodyState {
   isSleeping: boolean;
 }
 
-export type RigidBodyStateMap = Map<RigidBody["handle"], RigidBodyState>;
+export type RigidBodyStateMap = Map<RigidBody['handle'], RigidBodyState>;
 
 export type WorldStepCallback = (world: World) => void;
 
@@ -78,7 +76,7 @@ export interface ColliderState {
   worldParent?: Object3D;
 }
 
-export type ColliderStateMap = Map<Collider["handle"], ColliderState>;
+export type ColliderStateMap = Map<Collider['handle'], ColliderState>;
 
 export interface RapierContext {
   /**
@@ -182,24 +180,24 @@ const getCollisionPayloadFromSource = (
     rigidBody: target.rigidBody.object,
     collider: target.collider.object,
     colliderObject: target.collider.state?.object,
-    rigidBodyObject: target.rigidBody.state?.object
+    rigidBodyObject: target.rigidBody.state?.object,
   },
 
   other: {
     rigidBody: other.rigidBody.object,
     collider: other.collider.object,
     colliderObject: other.collider.state?.object,
-    rigidBodyObject: other.rigidBody.state?.object
+    rigidBodyObject: other.rigidBody.state?.object,
   },
 
   rigidBody: other.rigidBody.object,
   collider: other.collider.object,
   colliderObject: other.collider.state?.object,
-  rigidBodyObject: other.rigidBody.state?.object
+  rigidBodyObject: other.rigidBody.state?.object,
 });
 
 const importRapier = async () => {
-  let r = await import("@dimforge/rapier3d-compat");
+  let r = await import('@dimforge/rapier3d-compat');
   await r.init();
   return r;
 };
@@ -282,7 +280,7 @@ export interface PhysicsProps {
    *
    * @defaultValue 1/60
    */
-  timeStep?: number | "vary";
+  timeStep?: number | 'vary';
 
   /**
    * Pause the physics simulation
@@ -323,7 +321,7 @@ export interface PhysicsProps {
    * @see https://docs.pmnd.rs/react-three-fiber/advanced/scaling-performance#on-demand-rendering
    * @defaultValue "follow"
    */
-  updateLoop?: "follow" | "independent";
+  updateLoop?: 'follow' | 'independent';
 
   /**
    * Enable debug rendering of the physics world.
@@ -338,13 +336,13 @@ export interface PhysicsProps {
  */
 export const Physics: FC<PhysicsProps> = (props) => {
   const {
-    colliders = "cuboid",
+    colliders = 'cuboid',
     children,
     timeStep = 1 / 60,
     paused = false,
     interpolate = true,
     updatePriority,
-    updateLoop = "follow",
+    updateLoop = 'follow',
     debug = false,
 
     gravity = [0, -9.81, 0],
@@ -352,7 +350,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
     maxVelocityFrictionIterations = 8,
     maxVelocityIterations = 4,
     predictionDistance = 0.002,
-    erp = 0.8
+    erp = 0.8,
   } = props;
   const rapier = useAsset(importRapier);
   const { invalidate } = useThree();
@@ -400,7 +398,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
     maxVelocityIterations,
     maxVelocityFrictionIterations,
     predictionDistance,
-    erp
+    erp,
   ]);
 
   const getSourceFromColliderHandle = useCallback((handle: ColliderHandle) => {
@@ -426,13 +424,13 @@ export const Physics: FC<PhysicsProps> = (props) => {
       collider: {
         object: collider,
         events: colEvents,
-        state: colliderState
+        state: colliderState,
       },
       rigidBody: {
         object: rigidBody,
         events: rbEvents,
-        state: rigidBodyState
-      }
+        state: rigidBodyState,
+      },
     };
 
     return source;
@@ -443,7 +441,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
     previousState: Record<number, any>;
   }>({
     previousState: {},
-    accumulator: 0
+    accumulator: 0,
   });
 
   const step = useCallback(
@@ -452,7 +450,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
 
       /* Check if the timestep is supposed to be variable. We'll do this here
         once so we don't have to string-check every frame. */
-      const timeStepVariable = timeStep === "vary";
+      const timeStepVariable = timeStep === 'vary';
 
       /**
        * Fixed timeStep simulation progression
@@ -494,7 +492,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
             world.forEachRigidBody((body) => {
               steppingState.previousState[body.handle] = {
                 position: body.translation(),
-                rotation: body.rotation()
+                rotation: body.rotation(),
               };
             });
           }
@@ -527,7 +525,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
 
         if (
           !rigidBody ||
-          (rigidBody.isSleeping() && !("isInstancedMesh" in state.object)) ||
+          (rigidBody.isSleeping() && !('isInstancedMesh' in state.object)) ||
           !state.setMatrix
         ) {
           return;
@@ -551,7 +549,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
             .decompose(_position, _rotation, _scale);
 
           // Apply previous tick position
-          if (state.meshType == "mesh") {
+          if (state.meshType == 'mesh') {
             state.object.position.copy(_position);
             state.object.quaternion.copy(_rotation);
           }
@@ -563,7 +561,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
           .premultiply(state.invertedWorldMatrix)
           .decompose(_position, _rotation, _scale);
 
-        if (state.meshType == "instancedMesh") {
+        if (state.meshType == 'instancedMesh') {
           state.setMatrix(_matrix4);
         } else {
           // Interpolate to new position
@@ -599,26 +597,26 @@ export const Physics: FC<PhysicsProps> = (props) => {
               source1.rigidBody.events?.onCollisionEnter?.({
                 ...collisionPayload1,
                 manifold,
-                flipped
+                flipped,
               });
 
               source2.rigidBody.events?.onCollisionEnter?.({
                 ...collisionPayload2,
                 manifold,
-                flipped
+                flipped,
               });
 
               /* Collider events */
               source1.collider.events?.onCollisionEnter?.({
                 ...collisionPayload1,
                 manifold,
-                flipped
+                flipped,
               });
 
               source2.collider.events?.onCollisionEnter?.({
                 ...collisionPayload2,
                 manifold,
-                flipped
+                flipped,
               });
             }
           );
@@ -676,7 +674,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
           totalForce: event.totalForce(),
           totalForceMagnitude: event.totalForceMagnitude(),
           maxForceDirection: event.maxForceDirection(),
-          maxForceMagnitude: event.maxForceMagnitude()
+          maxForceMagnitude: event.maxForceMagnitude(),
         });
 
         source2.rigidBody.events?.onContactForce?.({
@@ -684,7 +682,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
           totalForce: event.totalForce(),
           totalForceMagnitude: event.totalForceMagnitude(),
           maxForceDirection: event.maxForceDirection(),
-          maxForceMagnitude: event.maxForceMagnitude()
+          maxForceMagnitude: event.maxForceMagnitude(),
         });
 
         source1.collider.events?.onContactForce?.({
@@ -692,7 +690,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
           totalForce: event.totalForce(),
           totalForceMagnitude: event.totalForceMagnitude(),
           maxForceDirection: event.maxForceDirection(),
-          maxForceMagnitude: event.maxForceMagnitude()
+          maxForceMagnitude: event.maxForceMagnitude(),
         });
 
         source2.collider.events?.onContactForce?.({
@@ -700,7 +698,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
           totalForce: event.totalForce(),
           totalForceMagnitude: event.totalForceMagnitude(),
           maxForceDirection: event.maxForceDirection(),
-          maxForceMagnitude: event.maxForceMagnitude()
+          maxForceMagnitude: event.maxForceMagnitude(),
         });
       });
 
@@ -717,7 +715,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
       world: worldProxy,
       physicsOptions: {
         colliders,
-        gravity
+        gravity,
       },
       rigidBodyStates,
       colliderStates,
@@ -727,7 +725,7 @@ export const Physics: FC<PhysicsProps> = (props) => {
       afterStepCallbacks,
       isPaused: paused,
       isDebug: debug,
-      step
+      step,
     }),
     [paused, step, debug, colliders, gravity]
   );

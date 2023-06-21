@@ -1,10 +1,10 @@
-import { useFrame } from "@react-three/fiber";
-import React, { memo } from "react";
-import { useRaf } from "../utils/utils-physics";
-import { PhysicsProps } from "./Physics";
+import { useFrame } from '@react-three/fiber';
+import { memo } from 'react';
+import { useRaf } from '../utils/utils-physics';
+import { PhysicsProps } from './Physics';
 
 interface FrameStepperProps {
-  type?: PhysicsProps["updateLoop"];
+  type?: PhysicsProps['updateLoop'];
   onStep: (dt: number) => void;
   updatePriority?: number;
 }
@@ -26,7 +26,7 @@ const RafStepper = ({ onStep }: FrameStepperProps) => {
 };
 
 const FrameStepper = ({ onStep, type, updatePriority }: FrameStepperProps) => {
-  return type === "independent" ? (
+  return type === 'independent' ? (
     <RafStepper onStep={onStep} />
   ) : (
     <UseFrameStepper onStep={onStep} updatePriority={updatePriority} />

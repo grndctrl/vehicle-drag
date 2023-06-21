@@ -1,20 +1,18 @@
-import React, {
+import {
   forwardRef,
   Fragment,
   memo,
   ReactNode,
   useEffect,
-  useImperativeHandle,
-  useRef
-} from "react";
-import { DynamicDrawUsage, InstancedMesh, Object3D } from "three";
-import { AnyCollider } from "./AnyCollider";
-import { useChildColliderProps, useRapier } from "../hooks/hooks";
-import { RigidBodyState } from "./Physics";
-import { RigidBody, RigidBodyProps } from "./RigidBody";
-import { _matrix4 } from "../utils/shared-objects";
-import { RapierRigidBody } from "../types";
-import { useForwardedRef } from "../hooks/use-forwarded-ref";
+  useRef,
+} from 'react';
+import { DynamicDrawUsage, InstancedMesh, Object3D } from 'three';
+import { useChildColliderProps } from '../hooks/hooks';
+import { useForwardedRef } from '../hooks/use-forwarded-ref';
+import { RapierRigidBody } from '../types';
+import { AnyCollider } from './AnyCollider';
+import { RigidBodyState } from './Physics';
+import { RigidBody, RigidBodyProps } from './RigidBody';
 
 export type InstancedRigidBodyProps = RigidBodyProps & {
   key: string | number;
@@ -54,13 +52,13 @@ export const InstancedRigidBodies = memo(
 
       const childColliderProps = useChildColliderProps(objectRef, {
         ...props,
-        children: undefined
+        children: undefined,
       });
 
       const getInstancedMesh = () => {
         const firstChild = instanceWrapperRef.current!.children[0];
 
-        if (firstChild && "isInstancedMesh" in firstChild) {
+        if (firstChild && 'isInstancedMesh' in firstChild) {
           return firstChild as InstancedMesh;
         }
 
@@ -74,7 +72,7 @@ export const InstancedRigidBodies = memo(
           instancedMesh.instanceMatrix.setUsage(DynamicDrawUsage);
         } else {
           console.warn(
-            "InstancedRigidBodies expects exactly one child, which must be an InstancedMesh"
+            'InstancedRigidBodies expects exactly one child, which must be an InstancedMesh'
           );
         }
       }, []);
@@ -94,7 +92,7 @@ export const InstancedRigidBodies = memo(
               instancedMesh.setMatrixAt(index, matrix);
               instancedMesh.instanceMatrix.needsUpdate = true;
             },
-            meshType: "instancedMesh"
+            meshType: 'instancedMesh',
           } as RigidBodyState;
         }
 
@@ -136,4 +134,4 @@ export const InstancedRigidBodies = memo(
   )
 );
 
-InstancedRigidBodies.displayName = "InstancedRigidBodies";
+InstancedRigidBodies.displayName = 'InstancedRigidBodies';

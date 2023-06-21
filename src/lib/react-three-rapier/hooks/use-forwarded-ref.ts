@@ -1,4 +1,4 @@
-import { ForwardedRef, MutableRefObject, useRef } from "react";
+import { ForwardedRef, MutableRefObject, useRef } from 'react';
 
 // Need to catch the case where forwardedRef is a function... how to do that?
 export const useForwardedRef = <T>(
@@ -8,7 +8,7 @@ export const useForwardedRef = <T>(
   const innerRef = useRef<T>(defaultValue);
 
   // Update the forwarded ref when the inner ref changes
-  if (forwardedRef && typeof forwardedRef !== "function") {
+  if (forwardedRef && typeof forwardedRef !== 'function') {
     if (!forwardedRef.current) {
       forwardedRef.current = innerRef.current;
     }

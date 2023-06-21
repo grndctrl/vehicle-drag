@@ -1,31 +1,24 @@
 import {
-  ImpulseJoint,
   FixedImpulseJoint,
-  SphericalImpulseJoint,
+  ImpulseJoint,
+  PrismaticImpulseJoint,
   RevoluteImpulseJoint,
-  PrismaticImpulseJoint
-} from "@dimforge/rapier3d-compat";
-import React, {
-  useRef,
-  useEffect,
-  useMemo,
-  useState,
-  MutableRefObject,
-  RefObject
-} from "react";
+  SphericalImpulseJoint,
+} from '@dimforge/rapier3d-compat';
+import { RefObject, useRef } from 'react';
 import {
-  useRapier,
-  RapierRigidBody,
-  UseImpulseJoint,
   FixedJointParams,
-  SphericalJointParams,
+  PrismaticJointParams,
+  RapierRigidBody,
   RevoluteJointParams,
-  PrismaticJointParams
-} from "..";
-import { vectorArrayToVector3, tupleToObject } from "../utils/utils";
+  SphericalJointParams,
+  UseImpulseJoint,
+  useRapier,
+} from '..';
+import { tupleToObject, vectorArrayToVector3 } from '../utils/utils';
 
-import type Rapier from "@dimforge/rapier3d-compat";
-import { useImperativeInstance } from "./use-imperative-instance";
+import type Rapier from '@dimforge/rapier3d-compat';
+import { useImperativeInstance } from './use-imperative-instance';
 
 /**
  * @internal
@@ -89,9 +82,9 @@ export const useFixedJoint: UseImpulseJoint<
     body2,
     rapier.JointData.fixed(
       vectorArrayToVector3(body1Anchor),
-      tupleToObject(body1LocalFrame, ["x", "y", "z", "w"] as const),
+      tupleToObject(body1LocalFrame, ['x', 'y', 'z', 'w'] as const),
       vectorArrayToVector3(body2Anchor),
-      tupleToObject(body2LocalFrame, ["x", "y", "z", "w"] as const)
+      tupleToObject(body2LocalFrame, ['x', 'y', 'z', 'w'] as const)
     )
   );
 };

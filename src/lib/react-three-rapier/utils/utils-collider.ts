@@ -1,28 +1,28 @@
 import {
+  ActiveEvents,
   Collider,
   ColliderDesc,
-  ActiveEvents,
   RigidBody,
-  World
-} from "@dimforge/rapier3d-compat";
-import { useEffect, useMemo } from "react";
-import { BufferGeometry, Euler, Mesh, Object3D, Vector3 } from "three";
-import { mergeVertices } from "three-stdlib";
-import { ColliderProps, RigidBodyProps } from "..";
+  World,
+} from '@dimforge/rapier3d-compat';
+import { useEffect, useMemo } from 'react';
+import { BufferGeometry, Euler, Mesh, Object3D, Vector3 } from 'three';
+import { mergeVertices } from 'three-stdlib';
+import { ColliderProps, RigidBodyProps } from '..';
 import {
   ColliderState,
   ColliderStateMap,
-  EventMap
-} from "../components/Physics";
+  EventMap,
+} from '../components/Physics';
+import { ColliderShape, RigidBodyAutoCollider } from '../types';
 import {
   _matrix4,
   _position,
   _rotation,
   _scale,
-  _vector3
-} from "./shared-objects";
-import { ColliderShape, RigidBodyAutoCollider } from "../types";
-import { scaleVertices, vectorToTuple } from "./utils";
+  _vector3,
+} from './shared-objects';
+import { scaleVertices, vectorToTuple } from './utils';
 
 export const scaleColliderArgs = (
   shape: ColliderShape,
@@ -32,7 +32,7 @@ export const scaleColliderArgs = (
   const newArgs = args.slice();
 
   // Heightfield uses a vector
-  if (shape === "heightfield") {
+  if (shape === 'heightfield') {
     const s = newArgs[3] as { x: number; y: number; z: number };
     s.x *= scale.x;
     s.x *= scale.y;
@@ -42,7 +42,7 @@ export const scaleColliderArgs = (
   }
 
   // Trimesh and convex scale the vertices
-  if (shape === "trimesh" || shape === "convexHull") {
+  if (shape === 'trimesh' || shape === 'convexHull') {
     newArgs[0] = scaleVertices(newArgs[0] as ArrayLike<number>, scale);
     return newArgs;
   }
@@ -68,8 +68,8 @@ export const createColliderFromOptions = (
 type ImmutableColliderOptions = (keyof ColliderProps)[];
 
 export const immutableColliderOptions: ImmutableColliderOptions = [
-  "shape",
-  "args"
+  'shape',
+  'args',
 ];
 
 type MutableColliderOptions = {
@@ -81,9 +81,9 @@ type MutableColliderOptions = {
 };
 
 const massPropertiesConflictError =
-  "Please pick ONLY ONE of the `density`, `mass` and `massProperties` options.";
+  'Please pick ONLY ONE of the `density`, `mass` and `massProperties` options.';
 
-type MassPropertiesType = "mass" | "massProperties" | "density";
+type MassPropertiesType = 'mass' | 'massProperties' | 'density';
 const setColliderMassOptions = (
   collider: Collider,
   options: Pick<ColliderProps, MassPropertiesType>
@@ -142,7 +142,7 @@ const mutableColliderOptions: MutableColliderOptions = {
   quaternion: () => {},
   position: () => {},
   rotation: () => {},
-  scale: () => {}
+  scale: () => {},
 };
 
 const mutableColliderOptionKeys = Object.keys(
@@ -177,14 +177,14 @@ export const setColliderOptions = (
       collider.setTranslationWrtParent({
         x: _position.x * parentWorldScale.x,
         y: _position.y * parentWorldScale.y,
-        z: _position.z * parentWorldScale.z
+        z: _position.z * parentWorldScale.z,
       });
       collider.setRotationWrtParent(_rotation);
     } else {
       collider.setTranslation({
         x: _position.x * parentWorldScale.x,
         y: _position.y * parentWorldScale.y,
-        z: _position.z * parentWorldScale.z
+        z: _position.z * parentWorldScale.z,
       });
       collider.setRotation(_rotation);
     }
@@ -230,7 +230,7 @@ export const useUpdateColliderOptions = (
 const isChildOfMeshCollider = (child: Mesh) => {
   let flag = false;
   child.traverseAncestors((a) => {
-    if (a.userData.r3RapierType === "MeshCollider") flag = true;
+    if (a.userData.r3RapierType === 'MeshCollider') flag = true;
   });
   return flag;
 };
@@ -243,15 +243,15 @@ export const createColliderState = (
   return {
     collider,
     worldParent: rigidBodyObject || undefined,
-    object
+    object,
   };
 };
 
 const autoColliderMap: Record<string, string> = {
-  cuboid: "cuboid",
-  ball: "ball",
-  hull: "convexHull",
-  trimesh: "trimesh"
+  cuboid: 'cuboid',
+  ball: 'ball',
+  hull: 'convexHull',
+  trimesh: 'trimesh',
 };
 
 interface CreateColliderPropsFromChildren {
@@ -270,12 +270,12 @@ export const createColliderPropsFromChildren: CreateColliderPropsFromChildren =
     const invertedParentMatrixWorld = object.matrixWorld.clone().invert();
 
     const colliderFromChild = (child: Object3D) => {
-      if ("isMesh" in child) {
+      if ('isMesh' in child) {
         if (ignoreMeshColliders && isChildOfMeshCollider(child as Mesh)) return;
 
         const worldScale = child.getWorldScale(_scale);
         const shape = autoColliderMap[
-          options.colliders || "cuboid"
+          options.colliders || 'cuboid'
         ] as ColliderShape;
 
         child.updateWorldMatrix(true, false);
@@ -284,12 +284,12 @@ export const createColliderPropsFromChildren: CreateColliderPropsFromChildren =
           .premultiply(invertedParentMatrixWorld)
           .decompose(_position, _rotation, _scale);
 
-        const rotationEuler = new Euler().setFromQuaternion(_rotation, "XYZ");
+        const rotationEuler = new Euler().setFromQuaternion(_rotation, 'XYZ');
 
         const { geometry } = child as Mesh;
         const { args, offset } = getColliderArgsFromGeometry(
           geometry,
-          options.colliders || "cuboid"
+          options.colliders || 'cuboid'
         );
 
         const colliderProps: ColliderProps = {
@@ -300,9 +300,9 @@ export const createColliderPropsFromChildren: CreateColliderPropsFromChildren =
           position: [
             _position.x + offset.x * worldScale.x,
             _position.y + offset.y * worldScale.y,
-            _position.z + offset.z * worldScale.z
+            _position.z + offset.z * worldScale.z,
           ],
-          scale: [worldScale.x, worldScale.y, worldScale.z]
+          scale: [worldScale.x, worldScale.y, worldScale.z],
         };
 
         childColliderProps.push(colliderProps);
@@ -323,7 +323,7 @@ export const getColliderArgsFromGeometry = (
   colliders: RigidBodyAutoCollider
 ): { args: unknown[]; offset: Vector3 } => {
   switch (colliders) {
-    case "cuboid":
+    case 'cuboid':
       {
         geometry.computeBoundingBox();
         const { boundingBox } = geometry;
@@ -332,12 +332,12 @@ export const getColliderArgsFromGeometry = (
 
         return {
           args: [size.x / 2, size.y / 2, size.z / 2],
-          offset: boundingBox!.getCenter(new Vector3())
+          offset: boundingBox!.getCenter(new Vector3()),
         };
       }
       break;
 
-    case "ball":
+    case 'ball':
       {
         geometry.computeBoundingSphere();
         const { boundingSphere } = geometry;
@@ -346,12 +346,12 @@ export const getColliderArgsFromGeometry = (
 
         return {
           args: [radius],
-          offset: boundingSphere!.center
+          offset: boundingSphere!.center,
         };
       }
       break;
 
-    case "trimesh":
+    case 'trimesh':
       {
         const clonedGeometry = geometry.index
           ? geometry.clone()
@@ -360,20 +360,20 @@ export const getColliderArgsFromGeometry = (
         return {
           args: [
             clonedGeometry.attributes.position.array as Float32Array,
-            clonedGeometry.index?.array as Uint32Array
+            clonedGeometry.index?.array as Uint32Array,
           ],
-          offset: new Vector3()
+          offset: new Vector3(),
         };
       }
       break;
 
-    case "hull":
+    case 'hull':
       {
         const g = geometry.clone();
 
         return {
           args: [g.attributes.position.array as Float32Array],
-          offset: new Vector3()
+          offset: new Vector3(),
         };
       }
       break;
@@ -390,7 +390,7 @@ export const getActiveCollisionEventsFromProps = (props?: ColliderProps) => {
       props?.onIntersectionEnter ||
       props?.onIntersectionExit
     ),
-    contactForce: !!props?.onContactForce
+    contactForce: !!props?.onContactForce,
   };
 };
 
@@ -411,7 +411,7 @@ export const useColliderEvents = (
     onCollisionExit,
     onIntersectionEnter,
     onIntersectionExit,
-    onContactForce
+    onContactForce,
   } = props;
 
   useEffect(() => {
@@ -420,7 +420,7 @@ export const useColliderEvents = (
     if (collider) {
       const {
         collision: collisionEventsActive,
-        contactForce: contactForceEventsActive
+        contactForce: contactForceEventsActive,
       } = getActiveCollisionEventsFromProps(props);
 
       const hasCollisionEvent = collisionEventsActive || activeEvents.collision;
@@ -442,7 +442,7 @@ export const useColliderEvents = (
         onCollisionExit,
         onIntersectionEnter,
         onIntersectionExit,
-        onContactForce
+        onContactForce,
       });
     }
 
@@ -457,7 +457,7 @@ export const useColliderEvents = (
     onIntersectionEnter,
     onIntersectionExit,
     onContactForce,
-    activeEvents
+    activeEvents,
   ]);
 };
 

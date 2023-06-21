@@ -1,4 +1,4 @@
-import { DependencyList, useCallback, useEffect, useMemo, useRef } from "react";
+import { DependencyList, useCallback, useEffect, useRef } from 'react';
 
 /**
  * Initiate an instance and return a safe getter

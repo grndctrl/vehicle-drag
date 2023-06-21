@@ -1,9 +1,9 @@
-import React, { ReactNode, useRef, useMemo, memo } from "react";
-import { Object3D } from "three";
-import { AnyCollider } from "..";
-import { useChildColliderProps, useRapier } from "../hooks/hooks";
-import { useRigidBodyContext } from "./RigidBody";
-import { RigidBodyAutoCollider } from "../types";
+import { ReactNode, memo, useMemo, useRef } from 'react';
+import { Object3D } from 'three';
+import { AnyCollider } from '..';
+import { useChildColliderProps, useRapier } from '../hooks/hooks';
+import { RigidBodyAutoCollider } from '../types';
+import { useRigidBodyContext } from './RigidBody';
 
 export interface MeshColliderProps {
   children: ReactNode;
@@ -25,7 +25,7 @@ export const MeshCollider = memo((props: MeshColliderProps) => {
       ...physicsOptions,
       ...options,
       children: undefined,
-      colliders: type
+      colliders: type,
     };
   }, [physicsOptions, options]);
 
@@ -39,7 +39,7 @@ export const MeshCollider = memo((props: MeshColliderProps) => {
     <object3D
       ref={object}
       userData={{
-        r3RapierType: "MeshCollider"
+        r3RapierType: 'MeshCollider',
       }}
     >
       {children}
@@ -50,4 +50,4 @@ export const MeshCollider = memo((props: MeshColliderProps) => {
   );
 });
 
-MeshCollider.displayName = "MeshCollider";
+MeshCollider.displayName = 'MeshCollider';

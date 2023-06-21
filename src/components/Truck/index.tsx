@@ -1,6 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { useControls as useLeva } from 'leva';
-import { RefObject, useEffect, useRef } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useVehicleController } from '../../hooks/vehicleController';
 import {
@@ -10,113 +9,65 @@ import {
 } from '../../lib/react-three-rapier';
 
 import { useDrag } from '@use-gesture/react';
+import { useStore } from '../../store/store';
 import { isLeft } from '../../utilities/vector';
 import Chassis from './Chassis';
 import DragIndicator from './DragIndicator';
 import Wheel from './Wheel';
+
+function calcPropulsion(chassis: RapierRigidBody, target: THREE.Vector2) {
+  const rotation = chassis.rotation() as THREE.Quaternion;
+
+  const position = new THREE.Vector2(
+    chassis.translation().x,
+    chassis.translation().z
+  );
+
+  const forward = new THREE.Vector3(1, 0, 0).applyQuaternion(rotation);
+
+  let angle = target
+    .clone()
+    .sub(position)
+    .angleTo(new THREE.Vector2(forward.x, forward.z));
+
+  let engineForce = 40;
+  let steering = 0;
+  const steeringDirection = isLeft(
+    position,
+    position.clone().add(new THREE.Vector2(forward.x, forward.z)),
+    target
+  )
+    ? 1
+    : -1;
+
+  if (angle > Math.PI / 2) {
+    engineForce = -12;
+    angle = Math.PI - angle;
+  }
+
+  if (angle > Math.PI / 24) {
+    steering = Math.min(angle, Math.PI / 4) * steeringDirection;
+  }
+
+  return { engineForce, steering };
+}
 
 type VehicleProps = {
   groundRef: RefObject<THREE.Mesh>;
 };
 
 function Vehicle({ groundRef }: VehicleProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  // state
   const chassisRef = useRef<RapierRigidBody>(null);
   const wheelsRef = useRef<THREE.Object3D[]>([]);
   const dragIndicatorRef = useRef<THREE.Object3D>(null);
   const steeringRef = useRef<number>(0);
   const engineForceRef = useRef<number>(0);
-  const showDragIndicatorRef = useRef<boolean>(false);
+  const [isDragIndicator, toggleDragIndicator] = useState<boolean>(false);
 
-  const { stiffness, rest, travel } = useLeva({
-    stiffness: {
-      value: 35,
-      min: 12,
-      max: 80,
-      step: 1,
-    },
-    rest: {
-      value: 0.2,
-      min: 0,
-      max: 0.5,
-      step: 0.025,
-    },
-    travel: {
-      value: 0.15,
-      min: 0,
-      max: 0.5,
-      step: 0.025,
-    },
-  });
-
+  // hooks
+  const setTranslation = useStore((state) => state.setTranslation);
   const { vehicleController } = useVehicleController(chassisRef, wheelsRef);
-
-  function calcPropulsion(target: THREE.Vector2) {
-    const { current: chassis } = chassisRef;
-
-    if (!chassis) return { engineForce: 0, steering: 0 };
-
-    console.log('am here');
-
-    const rotation = new THREE.Quaternion(
-      chassis.rotation().x,
-      chassis.rotation().y,
-      chassis.rotation().z,
-      chassis.rotation().w
-    );
-    const position = new THREE.Vector2(
-      chassis.translation().x,
-      chassis.translation().z
-    );
-
-    const forward = new THREE.Vector3(1, 0, 0).applyQuaternion(rotation);
-
-    let angle = target
-      .clone()
-      .sub(position)
-      .angleTo(new THREE.Vector2(forward.x, forward.z));
-
-    let engineForce = 24;
-    let steering = 0;
-    const steeringDirection = isLeft(
-      position,
-      position.clone().add(new THREE.Vector2(forward.x, forward.z)),
-      target
-    )
-      ? 1
-      : -1;
-
-    if (angle > Math.PI / 2) {
-      engineForce = -12;
-      angle = Math.PI - angle;
-    }
-
-    if (angle > Math.PI / 24) {
-      steering = Math.min(angle, Math.PI / 4) * steeringDirection;
-    }
-
-    return { engineForce, steering };
-  }
-
-  useEffect(() => {
-    if (!vehicleController) return;
-
-    vehicleController.setWheelSuspensionStiffness(0, stiffness);
-    vehicleController.setWheelSuspensionStiffness(1, stiffness);
-    vehicleController.setWheelSuspensionStiffness(2, stiffness);
-    vehicleController.setWheelSuspensionStiffness(3, stiffness);
-
-    vehicleController.setWheelSuspensionRestLength(0, rest);
-    vehicleController.setWheelSuspensionRestLength(1, rest);
-    vehicleController.setWheelSuspensionRestLength(2, rest);
-    vehicleController.setWheelSuspensionRestLength(3, rest);
-
-    vehicleController.setWheelMaxSuspensionTravel(0, travel);
-    vehicleController.setWheelMaxSuspensionTravel(1, travel);
-    vehicleController.setWheelMaxSuspensionTravel(2, travel);
-    vehicleController.setWheelMaxSuspensionTravel(3, travel);
-  }, [rest, stiffness, travel, vehicleController]);
-
   const { raycaster, camera, pointer } = useThree();
 
   const bind = useDrag(({ down }) => {
@@ -124,7 +75,7 @@ function Vehicle({ groundRef }: VehicleProps) {
     if (!ground || !vehicleController) return;
 
     if (down) {
-      showDragIndicatorRef.current = true;
+      toggleDragIndicator(true);
 
       raycaster.setFromCamera(pointer, camera);
       const intersections = raycaster.intersectObject(ground);
@@ -132,19 +83,42 @@ function Vehicle({ groundRef }: VehicleProps) {
       if (intersections.length > 0) {
         const { point } = intersections[0];
         const target = new THREE.Vector2(point.x, point.z);
-        const { steering, engineForce } = calcPropulsion(target);
+        const { steering, engineForce } = calcPropulsion(
+          vehicleController.chassis(),
+          target
+        );
 
         steeringRef.current = steering;
         engineForceRef.current = engineForce;
       }
     } else {
-      showDragIndicatorRef.current = false;
-
-      steeringRef.current = 0;
-      engineForceRef.current = 0;
+      toggleDragIndicator(false);
     }
   });
 
+  // effects
+  useEffect(() => {
+    if (!isDragIndicator) {
+      steeringRef.current = 0;
+      engineForceRef.current = 0;
+    }
+  }, [isDragIndicator]);
+
+  useEffect(() => {
+    if (!vehicleController) return;
+
+    const stiffness = 35;
+    const rest = 0.2;
+    const travel = 0.15;
+
+    for (let index = 0; index < 4; index++) {
+      vehicleController.setWheelSuspensionStiffness(index, stiffness);
+      vehicleController.setWheelSuspensionRestLength(index, rest);
+      vehicleController.setWheelMaxSuspensionTravel(index, travel);
+    }
+  }, [vehicleController]);
+
+  // animation loop
   useFrame(() => {
     if (!vehicleController) return;
 
@@ -163,14 +137,10 @@ function Vehicle({ groundRef }: VehicleProps) {
     //
 
     const { current: chassis } = chassisRef;
+
     if (!chassis) return;
 
-    const translation = new THREE.Vector3(
-      chassis.translation().x,
-      chassis.translation().y,
-      chassis.translation().z
-    );
-    camera.position.lerp(translation, 0.1);
+    setTranslation(chassis.translation() as THREE.Vector3);
 
     const { current: dragIndicator } = dragIndicatorRef;
     if (!dragIndicator) return;
@@ -243,9 +213,10 @@ function Vehicle({ groundRef }: VehicleProps) {
           <Wheel rotation={[0, Math.PI * 0.5, 0]} />
         </object3D>
       </RigidBody>
+
       <DragIndicator
         ref={dragIndicatorRef}
-        isVisible={showDragIndicatorRef}
+        visible={isDragIndicator}
         position={[0, 0.1, 0]}
         scale={[0.05, 0.05, 0.05]}
       />

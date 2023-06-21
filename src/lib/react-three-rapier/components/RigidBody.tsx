@@ -1,26 +1,28 @@
-import React, {
+import {
   createContext,
+  forwardRef,
   memo,
   MutableRefObject,
+  ReactNode,
   RefObject,
+  useContext,
   useEffect,
   useMemo,
-  useRef
-} from "react";
-import { forwardRef, ReactNode, useContext, useImperativeHandle } from "react";
-import { Object3D } from "three";
-import { useChildColliderProps, useRapier } from "../hooks/hooks";
-import { RapierRigidBody, RigidBodyOptions } from "../types";
-import { AnyCollider } from "./AnyCollider";
+  useRef,
+} from 'react';
+import { Object3D } from 'three';
+import { useChildColliderProps, useRapier } from '../hooks/hooks';
+import { useForwardedRef } from '../hooks/use-forwarded-ref';
+import { useImperativeInstance } from '../hooks/use-imperative-instance';
+import { RapierRigidBody, RigidBodyOptions } from '../types';
 import {
-  rigidBodyDescFromOptions,
   createRigidBodyState,
-  useUpdateRigidBodyOptions,
+  immutableRigidBodyOptions,
+  rigidBodyDescFromOptions,
   useRigidBodyEvents,
-  immutableRigidBodyOptions
-} from "../utils/utils-rigidbody";
-import { useImperativeInstance } from "../hooks/use-imperative-instance";
-import { useForwardedRef } from "../hooks/use-forwarded-ref";
+  useUpdateRigidBodyOptions,
+} from '../utils/utils-rigidbody';
+import { AnyCollider } from './AnyCollider';
 
 export const RigidBodyContext = createContext<{
   ref: RefObject<Object3D> | MutableRefObject<Object3D>;
@@ -62,7 +64,7 @@ export const RigidBody = memo(
       return {
         ...physicsOptions,
         ...props,
-        children: undefined
+        children: undefined,
       };
     }, [physicsOptions, props]);
 
@@ -80,7 +82,7 @@ export const RigidBody = memo(
         const desc = rigidBodyDescFromOptions(mergedOptions);
         const rigidBody = world.createRigidBody(desc);
 
-        if (typeof forwardedRef === "function") {
+        if (typeof forwardedRef === 'function') {
           forwardedRef(rigidBody);
         }
         rigidBodyRef.current = rigidBody;
@@ -101,7 +103,7 @@ export const RigidBody = memo(
 
       const state = createRigidBodyState({
         rigidBody,
-        object: objectRef.current!
+        object: objectRef.current!,
       });
 
       rigidBodyStates.set(
@@ -121,7 +123,7 @@ export const RigidBody = memo(
       return {
         ref: objectRef,
         getRigidBody: getRigidBody,
-        options: mergedOptions
+        options: mergedOptions,
       };
     }, [getRigidBody]);
 
@@ -146,4 +148,4 @@ export const RigidBody = memo(
   })
 );
 
-RigidBody.displayName = "RigidBody";
+RigidBody.displayName = 'RigidBody';

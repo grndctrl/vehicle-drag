@@ -1,18 +1,20 @@
 import {
   Box,
+  FirstPersonControls,
   GizmoHelper,
   GizmoViewcube,
   OrthographicCamera,
   SoftShadows,
   useTexture,
 } from '@react-three/drei';
+import { Object3DProps } from '@react-three/fiber';
 import { forwardRef, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { RigidBody } from '../lib/react-three-rapier';
-import Obstacle from './Obstacle';
+import IsometricCamera from './IsometricCamera';
 import Truck from './Truck';
 
-type GroundProps = {};
+type GroundProps = Object3DProps;
 
 const Ground = forwardRef<THREE.Mesh, GroundProps>((props, ref) => {
   const texture = useTexture(
@@ -20,54 +22,50 @@ const Ground = forwardRef<THREE.Mesh, GroundProps>((props, ref) => {
   );
 
   return (
-    <RigidBody type="fixed" colliders="cuboid">
-      <Box ref={ref} position={[0, -0.5, 0]} args={[100, 1, 100]} receiveShadow>
-        <meshStandardMaterial
-          map={texture}
-          map-repeat={[10, 10]}
-          map-wrapS={THREE.RepeatWrapping}
-          map-wrapT={THREE.RepeatWrapping}
-        />
-      </Box>
-    </RigidBody>
+    <object3D {...props}>
+      <RigidBody type="fixed" colliders="cuboid">
+        <Box
+          ref={ref}
+          position={[0, -0.5, 0]}
+          args={[100, 1, 100]}
+          receiveShadow
+        >
+          <meshStandardMaterial
+            map={texture}
+            map-repeat={[10, 10]}
+            map-wrapS={THREE.RepeatWrapping}
+            map-wrapT={THREE.RepeatWrapping}
+          />
+        </Box>
+      </RigidBody>
+    </object3D>
   );
 });
 
-function Obstacles() {
-  return (
-    <>
-      <Obstacle.TreeA position={[0, 0, -5]} scale={[4.5, 4.5, 4.5]} />
-      <Obstacle.TreeA position={[5, 0, -5]} scale={[4, 4, 4]} />
-      <Obstacle.TreeA position={[0, 0, 5]} scale={[5, 5, 5]} />
-      <Obstacle.TreeA position={[-5, 0, 5]} scale={[4, 4, 4]} />
-    </>
-  );
-}
+// function IsometricCamera() {
+//   const cameraRef = useRef<THREE.OrthographicCamera>(null);
 
-function IsometricCamera() {
-  const cameraRef = useRef<THREE.OrthographicCamera>(null);
+//   useEffect(() => {
+//     const { current: camera } = cameraRef;
 
-  useEffect(() => {
-    const { current: camera } = cameraRef;
+//     if (!camera) return;
 
-    if (!camera) return;
+//     camera.rotation.order = 'YXZ';
+//     camera.translateZ(10);
+//   }, [cameraRef]);
 
-    camera.rotation.order = 'YXZ';
-    camera.translateZ(10);
-  }, [cameraRef]);
-
-  return (
-    <OrthographicCamera
-      ref={cameraRef}
-      makeDefault
-      zoom={50}
-      near={-100}
-      far={500}
-      rotation={[Math.atan(-1 / Math.sqrt(2)), Math.PI / 4, 0]}
-      onUpdate={(self) => self.updateProjectionMatrix()}
-    />
-  );
-}
+//   return (
+//     <OrthographicCamera
+//       ref={cameraRef}
+//       makeDefault
+//       zoom={50}
+//       near={-100}
+//       far={500}
+//       rotation={[Math.atan(-1 / Math.sqrt(2)), Math.PI / 4, 0]}
+//       onUpdate={(self) => self.updateProjectionMatrix()}
+//     />
+//   );
+// }
 
 function Scene() {
   const groundRef = useRef<THREE.Mesh>(null);
@@ -75,13 +73,14 @@ function Scene() {
   return (
     <>
       <IsometricCamera />
+      {/* <FirstPersonControls /> */}
 
-      <GizmoHelper
+      {/* <GizmoHelper
         alignment="bottom-right" // widget alignment within scene
         margin={[80, 80]} // widget margins (X, Y)
       >
         <GizmoViewcube />
-      </GizmoHelper>
+      </GizmoHelper> */}
 
       <SoftShadows size={10} samples={20} />
 
@@ -113,8 +112,6 @@ function Scene() {
           bottom={-20}
         />
       </directionalLight>
-
-      <Obstacles />
     </>
   );
 }

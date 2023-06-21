@@ -1,23 +1,17 @@
-import { RigidBody, RigidBodyDesc } from "@dimforge/rapier3d-compat";
-import React, { MutableRefObject, useEffect, useMemo } from "react";
-import { Matrix4, Object3D, Vector3 } from "three";
-import { Boolean3Tuple, RigidBodyProps, Vector3Tuple } from "..";
+import { RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat';
+import { useEffect, useMemo } from 'react';
+import { Matrix4, Object3D, Vector3 } from 'three';
+import { Boolean3Tuple, RigidBodyProps, Vector3Tuple } from '..';
 import {
   EventMap,
   RigidBodyState,
-  RigidBodyStateMap
-} from "../components/Physics";
-import {
-  _matrix4,
-  _position,
-  _rotation,
-  _scale,
-  _vector3
-} from "./shared-objects";
-import { rigidBodyTypeFromString, vectorToTuple } from "./utils";
+  RigidBodyStateMap,
+} from '../components/Physics';
+import { _matrix4, _position, _rotation, _scale } from './shared-objects';
+import { rigidBodyTypeFromString, vectorToTuple } from './utils';
 
 export const rigidBodyDescFromOptions = (options: RigidBodyProps) => {
-  const type = rigidBodyTypeFromString(options?.type || "dynamic");
+  const type = rigidBodyTypeFromString(options?.type || 'dynamic');
 
   const desc = new RigidBodyDesc(type);
 
@@ -33,7 +27,7 @@ interface CreateRigidBodyStateOptions {
   setMatrix?: (matrix: Matrix4) => void;
   getMatrix?: (matrix: Matrix4) => Matrix4;
   worldScale?: Vector3;
-  meshType?: RigidBodyState["meshType"];
+  meshType?: RigidBodyState['meshType'];
 }
 
 export const createRigidBodyState = ({
@@ -42,7 +36,7 @@ export const createRigidBodyState = ({
   setMatrix,
   getMatrix,
   worldScale,
-  meshType = "mesh"
+  meshType = 'mesh',
 }: CreateRigidBodyStateOptions): RigidBodyState => {
   object.updateWorldMatrix(true, false);
   const invertedWorldMatrix = object.parent!.matrixWorld.clone().invert();
@@ -61,16 +55,16 @@ export const createRigidBodyState = ({
       : (matrix: Matrix4) => matrix.copy(object.matrix),
     scale: worldScale || object.getWorldScale(_scale).clone(),
     isSleeping: false,
-    meshType
+    meshType,
   };
 };
 
 type ImmutableRigidBodyOptions = (keyof RigidBodyProps)[];
 
 export const immutableRigidBodyOptions: ImmutableRigidBodyOptions = [
-  "args",
-  "colliders",
-  "canSleep"
+  'args',
+  'colliders',
+  'canSleep',
 ];
 
 type MutableRigidBodyOptions = {
@@ -120,7 +114,7 @@ export const mutableRigidBodyOptions: MutableRigidBodyOptions = {
   position: () => {},
   rotation: () => {},
   quaternion: () => {},
-  scale: () => {}
+  scale: () => {},
 };
 
 const mutableRigidBodyOptionKeys = Object.keys(mutableRigidBodyOptions);
@@ -193,7 +187,7 @@ export const useRigidBodyEvents = (
     onCollisionExit,
     onIntersectionEnter,
     onIntersectionExit,
-    onContactForce
+    onContactForce,
   } = props;
 
   const eventHandlers = {
@@ -203,7 +197,7 @@ export const useRigidBodyEvents = (
     onCollisionExit,
     onIntersectionEnter,
     onIntersectionExit,
-    onContactForce
+    onContactForce,
   };
 
   useEffect(() => {
@@ -220,6 +214,6 @@ export const useRigidBodyEvents = (
     onCollisionExit,
     onIntersectionEnter,
     onIntersectionExit,
-    onContactForce
+    onContactForce,
   ]);
 };

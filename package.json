@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "tsc && vite build",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint --fix src/**/*.{ts,tsx} --config .eslintrc.cjs --report-unused-disable-directives --max-warnings 0",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint --fix 'src/**/*.{ts,tsx}' --config .eslintrc.cjs --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "prettier": "prettier src/**/*.{css,ts,tsx} --config .prettierrc.prod.cjs --write",
+    "prettier": "prettier 'src/**/*.{css,ts,tsx}' --config .prettierrc.prod.cjs --write",
     "format": "npm run prettier; npm run lint"
   },
   "dependencies": {

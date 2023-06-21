@@ -1,12 +1,12 @@
-import React, { useRef } from "react";
 import {
   Quaternion as RapierQuaternion,
-  Vector3 as RapierVector3
-} from "@dimforge/rapier3d-compat";
+  Vector3 as RapierVector3,
+} from '@dimforge/rapier3d-compat';
+import { useRef } from 'react';
 
-import { Euler, Quaternion, Shape, Vector3 } from "three";
-import { _euler, _quaternion, _vector3 } from "./shared-objects";
-import { RigidBodyTypeString, Vector3Tuple } from "../types";
+import { Euler, Quaternion, Vector3 } from 'three';
+import { RigidBodyTypeString, Vector3Tuple } from '../types';
+import { _euler, _quaternion, _vector3 } from './shared-objects';
 
 export const vectorArrayToVector3 = (arr: Vector3Tuple) => {
   const [x, y, z] = arr;
@@ -42,14 +42,14 @@ export const rapierQuaternionToQuaternion = ({
   x,
   y,
   z,
-  w
+  w,
 }: RapierQuaternion) => _quaternion.set(x, y, z, w);
 
 const rigidBodyTypeMap = {
   fixed: 1,
   dynamic: 0,
   kinematicPosition: 2,
-  kinematicVelocity: 3
+  kinematicVelocity: 3,
 } as const;
 
 export const rigidBodyTypeFromString = (type: RigidBodyTypeString) =>
@@ -92,9 +92,9 @@ export function useConst<T>(initialValue: T | (() => T)): T {
   if (ref.current === undefined) {
     ref.current = {
       value:
-        typeof initialValue === "function"
+        typeof initialValue === 'function'
           ? (initialValue as Function)()
-          : initialValue
+          : initialValue,
     };
   }
   return ref.current.value;

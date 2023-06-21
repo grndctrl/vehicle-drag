@@ -1,8 +1,7 @@
-import React, { memo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
-import { BufferAttribute, LineSegments } from "three";
-import { useRapier } from "../hooks/hooks";
-import { _vector3 } from "../utils/shared-objects";
+import { useFrame } from '@react-three/fiber';
+import { memo, useRef } from 'react';
+import { BufferAttribute, LineSegments } from 'three';
+import { useRapier } from '../hooks/hooks';
 
 function mapsEqual(map1: Map<string, any>, map2: Map<string, any>) {
   var testVal;
@@ -29,10 +28,10 @@ export const Debug = memo(() => {
     const buffers = world.debugRender();
 
     mesh.geometry.setAttribute(
-      "position",
+      'position',
       new BufferAttribute(buffers.vertices, 3)
     );
-    mesh.geometry.setAttribute("color", new BufferAttribute(buffers.colors, 4));
+    mesh.geometry.setAttribute('color', new BufferAttribute(buffers.colors, 4));
   });
 
   return (

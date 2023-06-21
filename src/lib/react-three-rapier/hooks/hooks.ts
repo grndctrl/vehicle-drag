@@ -1,19 +1,19 @@
-import React, {
+import {
   MutableRefObject,
   useContext,
   useEffect,
   useRef,
-  useState
-} from "react";
+  useState,
+} from 'react';
+import { Object3D } from 'three';
 import {
-  rapierContext,
   RapierContext,
-  WorldStepCallback
-} from "../components/Physics";
-import { Object3D } from "three";
+  WorldStepCallback,
+  rapierContext,
+} from '../components/Physics';
 
-import { ColliderProps, RigidBodyProps } from "..";
-import { createColliderPropsFromChildren } from "../utils/utils-collider";
+import { ColliderProps, RigidBodyProps } from '..';
+import { createColliderPropsFromChildren } from '../utils/utils-collider';
 
 // Utils
 const useMutableCallback = <T>(fn: T) => {
@@ -88,7 +88,7 @@ export const useChildColliderProps = <O extends Object3D>(
         createColliderPropsFromChildren({
           object: ref.current!,
           options,
-          ignoreMeshColliders
+          ignoreMeshColliders,
         })
       );
     }

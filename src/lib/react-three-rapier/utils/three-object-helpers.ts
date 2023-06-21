@@ -1,4 +1,4 @@
-import { Euler, Quaternion, Vector3 } from "three";
+import { Euler, Quaternion, Vector3 } from 'three';
 
 /**
  * Takes an object resembling a Vector3 and returs a Three.Vector3

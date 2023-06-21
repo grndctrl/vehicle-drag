@@ -1,29 +1,29 @@
-import { MutableRefObject, RefObject } from "react";
+import { MutableRefObject, RefObject } from 'react';
 
 import {
   CoefficientCombineRule,
-  Collider as RapierCollider,
   ImpulseJoint,
   InteractionGroups,
+  Collider as RapierCollider,
   RigidBody as RapierRigidBody,
-  TempContactManifold
-} from "@dimforge/rapier3d-compat";
-import { Rotation, Vector } from "@dimforge/rapier3d-compat/math";
-import { Object3DProps } from "@react-three/fiber";
-import { Object3D } from "three";
-import { ColliderProps } from ".";
-import { RigidBodyState } from "./components/Physics";
+  TempContactManifold,
+} from '@dimforge/rapier3d-compat';
+import { Rotation, Vector } from '@dimforge/rapier3d-compat/math';
+import { Object3DProps } from '@react-three/fiber';
+import { Object3D } from 'three';
+import { ColliderProps } from '.';
+import { RigidBodyState } from './components/Physics';
 
-export { CoefficientCombineRule as CoefficientCombineRule } from "@dimforge/rapier3d-compat";
+export { CoefficientCombineRule as CoefficientCombineRule } from '@dimforge/rapier3d-compat';
 export { RapierRigidBody, RapierCollider };
 
 export type RefGetter<T> = MutableRefObject<() => T | undefined>;
 
 export type RigidBodyAutoCollider =
-  | "ball"
-  | "cuboid"
-  | "hull"
-  | "trimesh"
+  | 'ball'
+  | 'cuboid'
+  | 'hull'
+  | 'trimesh'
   | false;
 
 export type CuboidArgs = [
@@ -78,30 +78,30 @@ export type RoundConvexMeshArgs = [
   borderRadius: number
 ];
 
-export type UseBodyOptions = Omit<RigidBodyOptions, "shape">;
+export type UseBodyOptions = Omit<RigidBodyOptions, 'shape'>;
 
 export type RigidBodyTypeString =
-  | "fixed"
-  | "dynamic"
-  | "kinematicPosition"
-  | "kinematicVelocity";
+  | 'fixed'
+  | 'dynamic'
+  | 'kinematicPosition'
+  | 'kinematicVelocity';
 
 export type ColliderShape =
-  | "cuboid"
-  | "trimesh"
-  | "ball"
-  | "capsule"
-  | "convexHull"
-  | "heightfield"
-  | "polyline"
-  | "roundCuboid"
-  | "cylinder"
-  | "roundCylinder"
-  | "cone"
-  | "roundCone"
-  | "convexMesh"
-  | "roundConvexHull"
-  | "roundConvexMesh";
+  | 'cuboid'
+  | 'trimesh'
+  | 'ball'
+  | 'capsule'
+  | 'convexHull'
+  | 'heightfield'
+  | 'polyline'
+  | 'roundCuboid'
+  | 'cylinder'
+  | 'roundCylinder'
+  | 'cone'
+  | 'roundCone'
+  | 'convexMesh'
+  | 'roundConvexHull'
+  | 'roundConvexMesh';
 
 export type Vector3Tuple = [x: number, y: number, z: number];
 export type Vector4Tuple = [x: number, y: number, z: number, w: number];
@@ -169,22 +169,22 @@ export interface ColliderOptions<ColliderArgs extends Array<unknown>> {
   /**
    * The position of this collider relative to the rigid body
    */
-  position?: Object3DProps["position"];
+  position?: Object3DProps['position'];
 
   /**
    * The rotation of this collider relative to the rigid body
    */
-  rotation?: Object3DProps["rotation"];
+  rotation?: Object3DProps['rotation'];
 
   /**
    * The rotation, as a Quaternion, of this collider relative to the rigid body
    */
-  quaternion?: Object3DProps["quaternion"];
+  quaternion?: Object3DProps['quaternion'];
 
   /**
    * The scale of this collider relative to the rigid body
    */
-  scale?: Object3DProps["scale"];
+  scale?: Object3DProps['scale'];
 
   /**
    * Callback when this collider collides with another collider.
@@ -365,12 +365,12 @@ export interface RigidBodyOptions extends ColliderProps {
   /**
    * Initial position of the RigidBody
    */
-  position?: Object3DProps["position"];
+  position?: Object3DProps['position'];
 
   /**
    * Initial rotation of the RigidBody
    */
-  rotation?: Object3DProps["rotation"];
+  rotation?: Object3DProps['rotation'];
 
   /**
    * Automatically generate colliders based on meshes inside this
@@ -434,7 +434,7 @@ export interface RigidBodyOptions extends ColliderProps {
   /**
    * Passed down to the object3d representing this collider.
    */
-  userData?: Object3DProps["userData"];
+  userData?: Object3DProps['userData'];
 
   /**
    * Include invisible objects on the collider creation estimation.

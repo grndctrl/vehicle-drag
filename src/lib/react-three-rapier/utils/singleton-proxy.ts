@@ -21,7 +21,7 @@ export const createSingletonProxy = <
         instance = createInstance();
       }
       return Reflect.get(instance!, prop);
-    }
+    },
   };
 
   const proxy = new Proxy({} as SingletonClass, handler) as SingletonClass;
