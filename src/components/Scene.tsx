@@ -1,4 +1,5 @@
 import {
+  BakeShadows,
   Box,
   FirstPersonControls,
   GizmoHelper,
@@ -8,6 +9,7 @@ import {
   useTexture,
 } from '@react-three/drei';
 import { Object3DProps } from '@react-three/fiber';
+import { EffectComposer, N8AO, TiltShift2 } from '@react-three/postprocessing';
 import { forwardRef, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { RigidBody } from '../lib/react-three-rapier';
@@ -42,52 +44,19 @@ const Ground = forwardRef<THREE.Mesh, GroundProps>((props, ref) => {
   );
 });
 
-// function IsometricCamera() {
-//   const cameraRef = useRef<THREE.OrthographicCamera>(null);
-
-//   useEffect(() => {
-//     const { current: camera } = cameraRef;
-
-//     if (!camera) return;
-
-//     camera.rotation.order = 'YXZ';
-//     camera.translateZ(10);
-//   }, [cameraRef]);
-
-//   return (
-//     <OrthographicCamera
-//       ref={cameraRef}
-//       makeDefault
-//       zoom={50}
-//       near={-100}
-//       far={500}
-//       rotation={[Math.atan(-1 / Math.sqrt(2)), Math.PI / 4, 0]}
-//       onUpdate={(self) => self.updateProjectionMatrix()}
-//     />
-//   );
-// }
-
 function Scene() {
   const groundRef = useRef<THREE.Mesh>(null);
 
   return (
     <>
       <IsometricCamera />
-      {/* <FirstPersonControls /> */}
 
-      {/* <GizmoHelper
-        alignment="bottom-right" // widget alignment within scene
-        margin={[80, 80]} // widget margins (X, Y)
-      >
-        <GizmoViewcube />
-      </GizmoHelper> */}
-
-      <SoftShadows size={10} samples={20} />
+      {/* <SoftShadows size={10} samples={20} /> */}
 
       <Truck groundRef={groundRef} />
 
       <Ground ref={groundRef} />
-
+      {/* 
       <directionalLight
         color={'#bcbffe'}
         intensity={0.5}
@@ -98,20 +67,26 @@ function Scene() {
       <ambientLight intensity={0.1} />
 
       <directionalLight
-        castShadow
         color={'#feefc4'}
         intensity={2}
         position={[10, 12, 6]}
         shadow-mapSize={[1024, 1024]}
-      >
-        <orthographicCamera
-          attach="shadow-camera"
-          left={-20}
-          right={20}
-          top={20}
-          bottom={-20}
-        />
-      </directionalLight>
+      ></directionalLight> */}
+
+      <hemisphereLight intensity={0.5} color="white" groundColor="#f88" />
+
+      <EffectComposer disableNormalPass multisampling={8}>
+        {/* <N8AO
+          aoRadius={50}
+          distanceFalloff={0.2}
+          intensity={6}
+          screenSpaceRadius
+          halfRes
+        /> */}
+        <TiltShift2 />
+      </EffectComposer>
+
+      {/* <BakeShadows /> */}
     </>
   );
 }

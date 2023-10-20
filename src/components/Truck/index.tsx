@@ -9,6 +9,7 @@ import {
 } from '../../lib/react-three-rapier';
 
 import { useDrag } from '@use-gesture/react';
+import { useDebugStore } from '../../store/debug';
 import { useStore } from '../../store/store';
 import { isLeft } from '../../utilities/vector';
 import Chassis from './Chassis';
@@ -67,6 +68,7 @@ function Vehicle({ groundRef }: VehicleProps) {
 
   // hooks
   const setTranslation = useStore((state) => state.setTranslation);
+  const setTarget = useDebugStore((state) => state.setTarget);
   const { vehicleController } = useVehicleController(chassisRef, wheelsRef);
   const { raycaster, camera, pointer } = useThree();
 
@@ -83,6 +85,7 @@ function Vehicle({ groundRef }: VehicleProps) {
       if (intersections.length > 0) {
         const { point } = intersections[0];
         const target = new THREE.Vector2(point.x, point.z);
+        setTarget(target);
         const { steering, engineForce } = calcPropulsion(
           vehicleController.chassis(),
           target
