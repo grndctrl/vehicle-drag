@@ -17,7 +17,6 @@
     "@react-three/drei": "^9.74.6",
     "@react-three/fiber": "^8.13.0",
     "@react-three/postprocessing": "^2.14.12",
-    "@triplex/run": "^0.54.2",
     "@types/react": "^18.2.8",
     "@types/three": "^0.152.1",
     "@use-gesture/react": "^10.2.27",
