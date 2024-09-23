@@ -183,6 +183,7 @@ function Vehicle({ groundRef }: VehicleProps) {
         type="dynamic"
       >
         <MeshCollider type="hull">
+          {/* @ts-ignore  */}
           <object3D {...bind()}>
             <Chassis rotation={[0, Math.PI * -0.5, 0]} />
           </object3D>

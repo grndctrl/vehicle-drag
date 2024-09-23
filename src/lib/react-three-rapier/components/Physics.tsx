@@ -197,7 +197,7 @@ const getCollisionPayloadFromSource = (
 });
 
 const importRapier = async () => {
-  let r = await import('@dimforge/rapier3d-compat');
+  const r = await import('@dimforge/rapier3d-compat');
   await r.init();
   return r;
 };
@@ -532,10 +532,10 @@ export const Physics: FC<PhysicsProps> = (props) => {
         }
 
         // New states
-        let t = rigidBody.translation() as Vector3;
-        let r = rigidBody.rotation() as Quaternion;
+        const t = rigidBody.translation() as Vector3;
+        const r = rigidBody.rotation() as Quaternion;
 
-        let previousState = steppingState.previousState[handle];
+        const previousState = steppingState.previousState[handle];
 
         if (previousState) {
           // Get previous simulated world position

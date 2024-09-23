@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /**
  * Creates a proxy that will create a singleton instance of the given class
  * when a property is accessed, and not before.

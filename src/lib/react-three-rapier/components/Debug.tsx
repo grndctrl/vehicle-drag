@@ -1,14 +1,16 @@
+// @ts-nocheck
+
 import { useFrame } from '@react-three/fiber';
 import { memo, useRef } from 'react';
 import { BufferAttribute, LineSegments } from 'three';
 import { useRapier } from '../hooks/hooks';
 
 function mapsEqual(map1: Map<string, any>, map2: Map<string, any>) {
-  var testVal;
+  let testVal;
   if (map1.size !== map2.size) {
     return false;
   }
-  for (var [key, val] of map1) {
+  for (const [key, val] of map1) {
     testVal = map2.get(key);
     if (testVal !== val || (testVal === undefined && !map2.has(key))) {
       return false;

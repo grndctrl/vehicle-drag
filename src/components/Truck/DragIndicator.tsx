@@ -1,8 +1,6 @@
 import { Shape } from '@react-three/drei';
-import { Object3DProps, useFrame, useLoader } from '@react-three/fiber';
-import { LayerMaterial } from 'lamina';
-import { LayerMaterial as Material } from 'lamina/vanilla';
-import { RefObject, forwardRef, useEffect, useRef, useState } from 'react';
+import { Object3DProps, useLoader } from '@react-three/fiber';
+import { forwardRef, useState } from 'react';
 import * as THREE from 'three';
 import { SVGLoader, SVGResult } from 'three-stdlib';
 

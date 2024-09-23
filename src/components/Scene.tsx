@@ -1,16 +1,7 @@
-import {
-  BakeShadows,
-  Box,
-  FirstPersonControls,
-  GizmoHelper,
-  GizmoViewcube,
-  OrthographicCamera,
-  SoftShadows,
-  useTexture,
-} from '@react-three/drei';
+import { Box, useTexture } from '@react-three/drei';
 import { Object3DProps } from '@react-three/fiber';
-import { EffectComposer, N8AO, TiltShift2 } from '@react-three/postprocessing';
-import { forwardRef, useEffect, useRef } from 'react';
+import { EffectComposer, TiltShift2 } from '@react-three/postprocessing';
+import { forwardRef, useRef } from 'react';
 import * as THREE from 'three';
 import { RigidBody } from '../lib/react-three-rapier';
 import IsometricCamera from './IsometricCamera';

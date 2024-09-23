@@ -123,7 +123,7 @@ export const setRigidBodyOptions = (
   rigidBody: RigidBody,
   options: RigidBodyProps,
   states: RigidBodyStateMap,
-  updateTranslations: boolean = true
+  updateTranslations = true
 ) => {
   if (!rigidBody) {
     return;
@@ -158,7 +158,7 @@ export const useUpdateRigidBodyOptions = (
   getRigidBody: () => RigidBody,
   props: RigidBodyProps,
   states: RigidBodyStateMap,
-  updateTranslations: boolean = true
+  updateTranslations = true
 ) => {
   // TODO: Improve this, split each prop into its own effect
   const mutablePropsAsFlatArray = useMemo(
