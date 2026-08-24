@@ -25,7 +25,7 @@ import {
 import { AnyCollider } from './AnyCollider';
 
 export const RigidBodyContext = createContext<{
-  ref: RefObject<Object3D> | MutableRefObject<Object3D>;
+  ref: RefObject<Object3D | null> | MutableRefObject<Object3D>;
   getRigidBody: () => RapierRigidBody;
   options: RigidBodyOptions;
 }>(undefined!);

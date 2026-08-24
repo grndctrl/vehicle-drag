@@ -24,12 +24,12 @@ import { useImperativeInstance } from './use-imperative-instance';
  * @internal
  */
 export const useImpulseJoint = <JointType extends ImpulseJoint>(
-  body1: RefObject<RapierRigidBody>,
-  body2: RefObject<RapierRigidBody>,
+  body1: RefObject<RapierRigidBody | null>,
+  body2: RefObject<RapierRigidBody | null>,
   params: Rapier.JointData
 ) => {
   const { world } = useRapier();
-  const jointRef = useRef<JointType>();
+  const jointRef = useRef<JointType | undefined>(undefined);
 
   useImperativeInstance(
     () => {

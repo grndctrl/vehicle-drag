@@ -114,7 +114,9 @@ export const InstancedRigidBodies = memo(
             <RigidBody
               {...rigidBodyProps}
               {...instance}
-              ref={(body) => (rigidBodiesRef.current[index] = body)}
+              ref={(body) => {
+                rigidBodiesRef.current[index] = body;
+              }}
               transformState={(state) => applyInstancedState(state, index)}
             >
               <>

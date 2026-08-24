@@ -15,7 +15,7 @@ export const vectorArrayToVector3 = (arr: Vector3Tuple) => {
 
 export const tupleToObject = <
   T extends readonly any[],
-  K extends readonly string[]
+  K extends readonly string[],
 >(
   tuple: T,
   keys: K
@@ -88,7 +88,7 @@ export const vectorToTuple = (
 };
 
 export function useConst<T>(initialValue: T | (() => T)): T {
-  const ref = useRef<{ value: T }>();
+  const ref = useRef<{ value: T } | undefined>(undefined);
   if (ref.current === undefined) {
     ref.current = {
       value:

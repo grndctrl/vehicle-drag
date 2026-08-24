@@ -223,46 +223,31 @@ export interface PhysicsProps {
   gravity?: Vector3Tuple;
 
   /**
-   * The maximum velocity iterations the velocity-based constraint solver can make to attempt
-   * to remove the energy introduced by constraint stabilization.
-   *
-   * @defaultValue 1
-   */
-  maxStabilizationIterations?: number;
-
-  /**
-   * The maximum velocity iterations the velocity-based friction constraint solver can make.
-   *
-   * The greater this value is, the most realistic friction will be.
-   * However a greater number of iterations is more computationally intensive.
-   *
-   * @defaultValue 8
-   */
-  maxVelocityFrictionIterations?: number;
-
-  /**
-   * The maximum velocity iterations the velocity-based force constraint solver can make.
+   * The number of solver iterations run by the constraints solver.
    *
    * The greater this value is, the most rigid and realistic the physics simulation will be.
    * However a greater number of iterations is more computationally intensive.
    *
    * @defaultValue 4
    */
-  maxVelocityIterations?: number;
+  numSolverIterations?: number;
 
   /**
-   * The maximal distance separating two objects that will generate predictive contacts
+   * The number of internal Project Gauss Seidel (PGS) iterations run at each solver
+   * iteration. The greater this value is, the more realistic friction will be.
+   *
+   * @defaultValue 1
+   */
+  numInternalPgsIterations?: number;
+
+  /**
+   * The maximal distance separating two objects that will generate predictive contacts,
+   * normalized by the world's length unit.
    *
    * @defaultValue 0.002
    *
    */
-  predictionDistance?: number;
-
-  /**
-   * The Error Reduction Parameter in between 0 and 1, is the proportion of the positional error to be corrected at each time step
-   * @defaultValue 0.8
-   */
-  erp?: number;
+  normalizedPredictionDistance?: number;
 
   /**
    * Set the base automatic colliders for this physics world
@@ -346,11 +331,9 @@ export const Physics: FC<PhysicsProps> = (props) => {
     debug = false,
 
     gravity = [0, -9.81, 0],
-    maxStabilizationIterations = 1,
-    maxVelocityFrictionIterations = 8,
-    maxVelocityIterations = 4,
-    predictionDistance = 0.002,
-    erp = 0.8,
+    numSolverIterations = 4,
+    numInternalPgsIterations = 1,
+    normalizedPredictionDistance = 0.002,
   } = props;
   const rapier = useAsset(importRapier);
   const { invalidate } = useThree();
@@ -383,22 +366,17 @@ export const Physics: FC<PhysicsProps> = (props) => {
   // Update mutable props
   useEffect(() => {
     worldProxy.gravity = vectorArrayToVector3(gravity);
-    worldProxy.integrationParameters.maxStabilizationIterations =
-      maxStabilizationIterations;
-    worldProxy.integrationParameters.maxVelocityFrictionIterations =
-      maxVelocityFrictionIterations;
-    worldProxy.integrationParameters.maxVelocityIterations =
-      maxVelocityIterations;
-    worldProxy.integrationParameters.predictionDistance = predictionDistance;
-    worldProxy.integrationParameters.erp = erp;
+    worldProxy.integrationParameters.numSolverIterations = numSolverIterations;
+    worldProxy.integrationParameters.numInternalPgsIterations =
+      numInternalPgsIterations;
+    worldProxy.integrationParameters.normalizedPredictionDistance =
+      normalizedPredictionDistance;
   }, [
     worldProxy,
     ...gravity,
-    maxStabilizationIterations,
-    maxVelocityIterations,
-    maxVelocityFrictionIterations,
-    predictionDistance,
-    erp,
+    numSolverIterations,
+    numInternalPgsIterations,
+    normalizedPredictionDistance,
   ]);
 
   const getSourceFromColliderHandle = useCallback((handle: ColliderHandle) => {

@@ -6,10 +6,11 @@ import {
   InteractionGroups,
   Collider as RapierCollider,
   RigidBody as RapierRigidBody,
+  Rotation,
   TempContactManifold,
+  Vector,
 } from '@dimforge/rapier3d-compat';
-import { Rotation, Vector } from '@dimforge/rapier3d-compat/math';
-import { Object3DProps } from '@react-three/fiber';
+import { ThreeElements } from '@react-three/fiber';
 import { Object3D } from 'three';
 import { ColliderProps } from '.';
 import { RigidBodyState } from './components/Physics';
@@ -29,7 +30,7 @@ export type RigidBodyAutoCollider =
 export type CuboidArgs = [
   halfWidth: number,
   halfHeight: number,
-  halfDepth: number
+  halfDepth: number,
 ];
 export type BallArgs = [radius: number];
 export type CapsuleArgs = [halfHeight: number, radius: number];
@@ -38,44 +39,44 @@ export type HeightfieldArgs = [
   width: number,
   height: number,
   heights: number[],
-  scale: { x: number; y: number; z: number }
+  scale: { x: number; y: number; z: number },
 ];
 export type TrimeshArgs = [
   vertices: ArrayLike<number>,
-  indices: ArrayLike<number>
+  indices: ArrayLike<number>,
 ];
 export type PolylineArgs = [vertices: Float32Array, indices: Uint32Array];
 export type RoundCuboidArgs = [
   halfWidth: number,
   halfHeight: number,
   halfDepth: number,
-  borderRadius: number
+  borderRadius: number,
 ];
 export type CylinderArgs = [halfHeight: number, radius: number];
 export type RoundCylinderArgs = [
   halfHeight: number,
   radius: number,
-  borderRadius: number
+  borderRadius: number,
 ];
 export type ConeArgs = [halfHeight: number, radius: number];
 export type RoundConeArgs = [
   halfHeight: number,
   radius: number,
-  borderRadius: number
+  borderRadius: number,
 ];
 export type ConvexMeshArgs = [
   vertices: ArrayLike<number>,
-  indices: ArrayLike<number>
+  indices: ArrayLike<number>,
 ];
 export type RoundConvexHullArgs = [
   vertices: ArrayLike<number>,
   indices: ArrayLike<number>,
-  borderRadius: number
+  borderRadius: number,
 ];
 export type RoundConvexMeshArgs = [
   vertices: ArrayLike<number>,
   indices: ArrayLike<number>,
-  borderRadius: number
+  borderRadius: number,
 ];
 
 export type UseBodyOptions = Omit<RigidBodyOptions, 'shape'>;
@@ -169,22 +170,22 @@ export interface ColliderOptions<ColliderArgs extends Array<unknown>> {
   /**
    * The position of this collider relative to the rigid body
    */
-  position?: Object3DProps['position'];
+  position?: ThreeElements['object3D']['position'];
 
   /**
    * The rotation of this collider relative to the rigid body
    */
-  rotation?: Object3DProps['rotation'];
+  rotation?: ThreeElements['object3D']['rotation'];
 
   /**
    * The rotation, as a Quaternion, of this collider relative to the rigid body
    */
-  quaternion?: Object3DProps['quaternion'];
+  quaternion?: ThreeElements['object3D']['quaternion'];
 
   /**
    * The scale of this collider relative to the rigid body
    */
-  scale?: Object3DProps['scale'];
+  scale?: ThreeElements['object3D']['scale'];
 
   /**
    * Callback when this collider collides with another collider.
@@ -365,12 +366,12 @@ export interface RigidBodyOptions extends ColliderProps {
   /**
    * Initial position of the RigidBody
    */
-  position?: Object3DProps['position'];
+  position?: ThreeElements['object3D']['position'];
 
   /**
    * Initial rotation of the RigidBody
    */
-  rotation?: Object3DProps['rotation'];
+  rotation?: ThreeElements['object3D']['rotation'];
 
   /**
    * Automatically generate colliders based on meshes inside this
@@ -434,7 +435,7 @@ export interface RigidBodyOptions extends ColliderProps {
   /**
    * Passed down to the object3d representing this collider.
    */
-  userData?: Object3DProps['userData'];
+  userData?: ThreeElements['object3D']['userData'];
 
   /**
    * Include invisible objects on the collider creation estimation.
@@ -451,14 +452,14 @@ export interface RigidBodyOptions extends ColliderProps {
 // Joints
 export type SphericalJointParams = [
   body1Anchor: Vector3Tuple,
-  body2Anchor: Vector3Tuple
+  body2Anchor: Vector3Tuple,
 ];
 
 export type FixedJointParams = [
   body1Anchor: Vector3Tuple,
   body1LocalFrame: Vector4Tuple,
   body2Anchor: Vector3Tuple,
-  body2LocalFrame: Vector4Tuple
+  body2LocalFrame: Vector4Tuple,
 ];
 
 export type PrismaticJointParams = [
@@ -466,20 +467,20 @@ export type PrismaticJointParams = [
   body1LocalFrame: Vector3Tuple,
   body2Anchor: Vector3Tuple,
   body2LocalFrame: Vector3Tuple,
-  limits?: [min: number, max: number]
+  limits?: [min: number, max: number],
 ];
 
 export type RevoluteJointParams = [
   body1Anchor: Vector3Tuple,
   body2Anchor: Vector3Tuple,
   axis: Vector3Tuple,
-  limits?: [min: number, max: number]
+  limits?: [min: number, max: number],
 ];
 
 export interface UseImpulseJoint<JointParams, JointType extends ImpulseJoint> {
   (
-    body1: RefObject<RapierRigidBody>,
-    body2: RefObject<RapierRigidBody>,
+    body1: RefObject<RapierRigidBody | null>,
+    body2: RefObject<RapierRigidBody | null>,
     params: JointParams
   ): RefObject<JointType | undefined>;
 }

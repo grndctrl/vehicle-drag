@@ -1,14 +1,14 @@
 import { Shape } from '@react-three/drei';
-import { Object3DProps, useLoader } from '@react-three/fiber';
+import { ThreeElements, useLoader } from '@react-three/fiber';
 import { forwardRef, useState } from 'react';
 import * as THREE from 'three';
-import { SVGLoader, SVGResult } from 'three-stdlib';
+import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 
-type DragIndicatorProps = Object3DProps;
+type DragIndicatorProps = ThreeElements['object3D'];
 
 const DragIndicator = forwardRef<THREE.Object3D, DragIndicatorProps>(
   (props, ref) => {
-    const { paths }: SVGResult = useLoader(SVGLoader, '/direction.svg');
+    const { paths } = useLoader(SVGLoader, '/direction.svg');
     const [shapes] = useState<THREE.Shape[]>(() =>
       paths
         .map((path) => {

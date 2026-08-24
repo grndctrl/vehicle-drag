@@ -21,7 +21,7 @@ const suspensionStiffness = 24;
 const maxSuspensionTravel = 0.125;
 
 export function useVehicleController(
-  chassisRef: RefObject<RapierRigidBody>,
+  chassisRef: RefObject<RapierRigidBody | null>,
   wheelsRef: RefObject<Object3D[]>
 ) {
   const { world } = useRapier();

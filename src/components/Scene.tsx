@@ -1,5 +1,5 @@
 import { Box, useTexture } from '@react-three/drei';
-import { Object3DProps } from '@react-three/fiber';
+import { ThreeElements } from '@react-three/fiber';
 import { EffectComposer, TiltShift2 } from '@react-three/postprocessing';
 import { forwardRef, useRef } from 'react';
 import * as THREE from 'three';
@@ -7,7 +7,7 @@ import { RigidBody } from '../lib/react-three-rapier';
 import IsometricCamera from './IsometricCamera';
 import Truck from './Truck';
 
-type GroundProps = Object3DProps;
+type GroundProps = ThreeElements['object3D'];
 
 const Ground = forwardRef<THREE.Mesh, GroundProps>((props, ref) => {
   const texture = useTexture(
@@ -47,7 +47,7 @@ function Scene() {
       <Truck groundRef={groundRef} />
 
       <Ground ref={groundRef} />
-      {/* 
+      {/*
       <directionalLight
         color={'#bcbffe'}
         intensity={0.5}
@@ -66,7 +66,7 @@ function Scene() {
 
       <hemisphereLight intensity={0.5} color="white" groundColor="#f88" />
 
-      <EffectComposer disableNormalPass multisampling={8}>
+      <EffectComposer multisampling={8}>
         {/* <N8AO
           aoRadius={50}
           distanceFalloff={0.2}

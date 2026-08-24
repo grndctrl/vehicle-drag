@@ -54,7 +54,7 @@ function calcPropulsion(chassis: RapierRigidBody, target: THREE.Vector2) {
 }
 
 type VehicleProps = {
-  groundRef: RefObject<THREE.Mesh>;
+  groundRef: RefObject<THREE.Mesh | null>;
 };
 
 function Vehicle({ groundRef }: VehicleProps) {

@@ -6,7 +6,7 @@ import { useStore } from '../store/store';
 
 function IsometricCamera() {
   const translation = useStore((state) => state.translation);
-  const cameraRef = useRef<THREE.Camera>();
+  const cameraRef = useRef<THREE.Camera | null>(null);
   // const sunRef = useRef<THREE.OrthographicCamera>();
   const sunRef = useRef<THREE.DirectionalLight>(null);
   const cameraOrientationRef = useRef({

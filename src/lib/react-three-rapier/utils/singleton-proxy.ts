@@ -8,7 +8,7 @@
  */
 export const createSingletonProxy = <
   SingletonClass extends object,
-  CreationFn extends () => SingletonClass = () => SingletonClass
+  CreationFn extends () => SingletonClass = () => SingletonClass,
 >(
   /**
    * A function that returns a new instance of the class
